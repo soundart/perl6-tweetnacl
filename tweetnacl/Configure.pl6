@@ -4,7 +4,10 @@
 # The example here is how the 'make' sub generates the makefile in the above Build.pm file
 use LibraryMake;
 
+use Shell::Command;
+
 my $destdir = '../resources';
+mkpath $destdir;
 my %vars = get-vars($destdir);
 process-makefile('.', %vars);
 

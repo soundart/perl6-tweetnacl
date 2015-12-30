@@ -14,6 +14,8 @@ SYNOPSIS
 
 INSTALL
 =======
+    export PATH=~/.rakudobrew/bin:$PATH
+    export PATH=~/.rakudobrew/moar-2015.12/install/share/perl6/site/bin:$PATH
 
     panda install git://github.com/soundart/perl6-tweetnacl.git
 
