@@ -1,0 +1,7 @@
+all: %DESTDIR%/libtweetnacl%SO%
+
+%DESTDIR%/libtweetnacl%SO%: tweetnacl%O%
+	    %LD% %LDSHARED% %LDFLAGS% %LIBS% %LDOUT%%DESTDIR%/libtweetnacl%SO% tweetnacl%O%
+
+tweetnacl%O%: src/tweetnacl.c contrib/randombytes/devurandom.c
+	    %CC% -c %CCSHARED% %CCFLAGS% %CCOUT% tweetnacl%O% $^
