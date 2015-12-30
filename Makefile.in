@@ -3,8 +3,11 @@ all: %DESTDIR%/libtweetnacl%SO%
 %DESTDIR%/libtweetnacl%SO%: tweetnacl%O% devurandom%O%
 	    %LD% %LDSHARED% %LDFLAGS% %LIBS% %LDOUT%%DESTDIR%/libtweetnacl%SO% $^
 
-tweetnacl%O%: src/tweetnacl.c
+tweetnacl%O%: tweetnacl/src/tweetnacl.c
 	    %CC% -c %CCSHARED% %CCFLAGS% %CCOUT% $@ $^
 
-devurandom%O%: contrib/randombytes/devurandom.c
+devurandom%O%: tweetnacl/contrib/randombytes/devurandom.c
 	    %CC% -c %CCSHARED% %CCFLAGS% %CCOUT% $@ $^
+
+test: all
+	prove -e 'perl6 -Ilib' t

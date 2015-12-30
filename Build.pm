@@ -6,7 +6,7 @@ use Shell::Command;
 
 class Build is Panda::Builder {
     method build($workdir) {
-        mkpath "$workdir/resources";
-        make("$workdir/tweetnacl", "$workdir/resources");
+        mkpath "$workdir/lib";
+        make("$workdir/tweetnacl", "$workdir/lib");
     }
 }

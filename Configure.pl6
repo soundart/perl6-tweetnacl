@@ -6,8 +6,7 @@ use LibraryMake;
 
 use Shell::Command;
 
-my $destdir = '../resources';
-mkpath $destdir;
+my $destdir = './lib';
 my %vars = get-vars($destdir);
 process-makefile('.', %vars);
 
