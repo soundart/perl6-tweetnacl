@@ -10,7 +10,9 @@ sub library {
 }
 
 #int crypto_box_keypair(u8 *y,u8 *x);
-sub crypto_box_keypair_(CArray[int8], CArray[int8]) returns Int is symbol('crypto_box_keypair') is native('tweetnacl');
+sub crypto_box_keypair_(CArray[int8], CArray[int8]) returns Int
+    is symbol('crypto_box_keypair')
+    is native('tweetnacl'); # --> use libtweetnacl for this symbol
 
 #https://nacl.cr.yp.to/box.html
 sub crypto_box_keypair()

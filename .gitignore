@@ -4,3 +4,4 @@ Makefile
 /resources/*.so
 /resources/*.dylib
 .precomp/
+*~
