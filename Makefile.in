@@ -10,4 +10,4 @@ devurandom%O%: tweetnacl/contrib/randombytes/devurandom.c
 	    %CC% -c %CCSHARED% %CCFLAGS% %CCOUT% $@ $^
 
 test: all
-	prove -e 'perl6 -Ilib' t
+	prove -ve 'perl6 -Ilib' t

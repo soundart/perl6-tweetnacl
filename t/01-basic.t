@@ -3,4 +3,5 @@ use Test;
 use TweetNacl;
 plan 1;
 
-is crypto_box_keypair(), 3;
+my %result = crypto_box_keypair();
+cmp-ok %result.keys , '==', ('public_key', 'secret_key');

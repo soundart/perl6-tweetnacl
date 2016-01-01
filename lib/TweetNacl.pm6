@@ -12,11 +12,11 @@ sub library {
             return $_~'/tweetnacl'~$so;
         }
     }
-    die "Unable to find Imlib2";
+    die "Unable to find libtweetnacl";
 }
 #int crypto_box_keypair(u8 *y,u8 *x);
 
-sub crypto_box_keypair_int(CArray[int8], CArray[int8]) is symbol('crypto_box_keypair') is native('tweetnacl') returns int { * }
+sub crypto_box_keypair_int(CArray[int8], CArray[int8]) is symbol('crypto_box_keypair') is native('./lib/tweetnacl') returns int { * }
 
 #https://nacl.cr.yp.to/box.html
 sub crypto_box_keypair() is export
