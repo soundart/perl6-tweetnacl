@@ -107,6 +107,14 @@ sub crypto_box (Blob $buf, CArray[int8] $nonce, CArray[int8] $pk, CArray[int8] $
 
 sub crypto_box_afternm_int (CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8]) is symbol('crypto_box_afternm') is native('./lib/tweetnacl') is export returns int32 { * };
 
+class Ciphertext
+  {
+    has $.data;
+    has $.nonce;
+    submethod BUILD(CArray[int8] :$!data, CArray[int8] :$!nonce)
+      {
+      }
+  }
   class CryptoBox is export
   {
     has $!key;
@@ -121,7 +129,7 @@ sub crypto_box_afternm_int (CArray[int8], CArray[int8], longlong, CArray[int8], 
           }
       }
 
-    method encrypt(Blob $buf, CArray[int8] $nonce)
+    multi method encrypt(Blob $buf, CArray[int8] $nonce)
       {
         my longlong $mlen = CRYPTO_BOX_ZEROBYTES + $buf.elems;
         my $data = CArray[int8].new;
@@ -143,6 +151,14 @@ sub crypto_box_afternm_int (CArray[int8], CArray[int8], longlong, CArray[int8], 
             die "crypto_box, bad return code: $ret";
           }
         return $data;
+      }
+
+    multi method encrypt(Blob $buf)
+      {
+        my $nonce = nonce();
+        my $data  = self.encrypt($buf, $nonce);
+        my $ciph  = Ciphertext.new(data => $data, nonce => $nonce);
+        return $ciph;
       }
   }
 
@@ -181,8 +197,7 @@ sub crypto_box_open(CArray[int8] $c, CArray[int8] $nonce, CArray[int8] $pk, CArr
     {
         $buf[$i] = $msg[$i + CRYPTO_BOX_ZEROBYTES];
     }
-    my Str $s = $buf.decode('UTF-8');
-    return $s;
+    return $buf;
 }
 
 # The crypto_box_open_afternm function is callable as follows:
@@ -211,7 +226,7 @@ sub crypto_box_open(CArray[int8] $c, CArray[int8] $nonce, CArray[int8] $pk, CArr
             die "crypto_box_beforenm_int, bad return code: $ret";
           }
       }
-    method decrypt(CArray[int8] $c, CArray[int8] $nonce)
+    multi method decrypt(CArray[int8] $c, CArray[int8] $nonce)
       {
         my $msg  = CArray[int8].new;
         my $clen = $c.elems;
@@ -237,4 +252,8 @@ sub crypto_box_open(CArray[int8] $c, CArray[int8] $nonce, CArray[int8] $pk, CArr
           }
         return $buf;
       }
-  }
+    multi method decrypt(Ciphertext $ciph)
+      {
+        return self.decrypt($ciph.data, $ciph.nonce);
+      }
+}

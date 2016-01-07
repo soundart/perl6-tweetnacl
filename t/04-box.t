@@ -7,12 +7,13 @@ plan 4;
 
 sub make_carray(@l)
   {
-    my $alicesk := CArray[int8].new;
+    my $c := CArray[int8].new;
+    $c[@l.elems-1] = 0; # alloc
     my $i = 0;
     for (@l) {
-      $alicesk[$i++] = $_;
+      $c[$i++] = $_;
     }
-    return $alicesk;
+    return $c;
   }
 
 my $alicesk =
