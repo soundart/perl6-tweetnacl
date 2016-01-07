@@ -90,12 +90,12 @@ $c[163-1] = 0;
 
 my Int $ret;
 $ret = crypto_box_int($c,$m,163,$nonce,$bobpk,$alicesk);
-is $ret,0;
-is-deeply $c, $exp;
+is $ret,0, "success return code";
+is-deeply $c, $exp, "encrypt";
 
 my $mopen := CArray[int8].new;
 $mopen[163-1] = 0;
 
 $ret = crypto_box_open_int($mopen,$exp,163,$nonce,$bobpk,$alicesk);
-is $ret,0;
-is-deeply $mopen, $m;
+is $ret,0, "success return code";;
+is-deeply $mopen, $m, "decrypt";

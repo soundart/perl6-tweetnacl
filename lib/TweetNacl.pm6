@@ -53,7 +53,7 @@ sub randombytes(int $xlen) is export
 
 sub nonce() is export
 {
-    return randombytes(24);
+    return randombytes(CRYPTO_BOX_NONCEBYTES);
 }
 
 # const unsigned char pk[crypto_box_PUBLICKEYBYTES];
@@ -66,10 +66,8 @@ sub nonce() is export
 
 sub crypto_box_int (CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8], CArray[int8]) is symbol('crypto_box') is native('./lib/tweetnacl') is export returns int32 { * };
 
-
 sub crypto_box (Blob $buf, CArray[int8] $nonce, CArray[int8] $pk, CArray[int8] $sk) is export
 {
-    #my Blob $buf = $m.encode('UTF-8');
     my longlong $mlen = CRYPTO_BOX_ZEROBYTES + $buf.elems;
     my $data = CArray[int8].new;
     my $msg  = CArray[int8].new;
@@ -86,11 +84,67 @@ sub crypto_box (Blob $buf, CArray[int8] $nonce, CArray[int8] $pk, CArray[int8] $
     }
     my $ret = crypto_box_int($data, $msg, $mlen, $nonce, $pk, $sk);
     if ($ret != 0)
-    {
+      {
         die "crypto_box, bad return code: $ret";
-    }
+      }
     return $data;
 }
+
+#      unsigned char k[crypto_box_BEFORENMBYTES];
+#      const unsigned char pk[crypto_box_PUBLICKEYBYTES];
+#      const unsigned char sk[crypto_box_SECRETKEYBYTES];
+
+#      crypto_box_beforenm(k,pk,sk);#int crypto_box_beforenm(u8 *k,const u8 *y,const u8 *x);
+
+  sub crypto_box_beforenm_int (CArray[int8], CArray[int8], CArray[int8]) is symbol('crypto_box_beforenm') is native('./lib/tweetnacl') is export returns int32 { * };
+
+# const unsigned char k[crypto_box_BEFORENMBYTES];
+# const unsigned char n[crypto_box_NONCEBYTES];
+# const unsigned char c[...]; unsigned long long clen;
+# unsigned char m[...];
+
+# crypto_box_open_afternm(m,c,clen,n,k);
+
+sub crypto_box_afternm_int (CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8]) is symbol('crypto_box_afternm') is native('./lib/tweetnacl') is export returns int32 { * };
+
+  class CryptoBox is export
+  {
+    has $!key;
+    submethod BUILD(CArray[int8] :$pk, CArray[int8] :$sk)
+      {
+        $!key := CArray[int8].new;
+        $!key[CRYPTO_BOX_BEFORENMBYTES - 1] = 0; # extend the array to 32 items
+        my $ret = crypto_box_beforenm_int($!key, $pk, $sk);
+        if ($ret != 0)
+          {
+            die "crypto_box_beforenm_int, bad return code: $ret";
+          }
+      }
+
+    method encrypt(Blob $buf, CArray[int8] $nonce)
+      {
+        my longlong $mlen = CRYPTO_BOX_ZEROBYTES + $buf.elems;
+        my $data = CArray[int8].new;
+        my $msg  = CArray[int8].new;
+        $data[$mlen - 1] = 0; #alloc
+        $msg[$mlen - 1] = 0; #alloc
+        my $i;
+        loop ($i=0; $i < CRYPTO_BOX_ZEROBYTES ; $i++)
+          {
+            $msg[$i] = 0;
+          }
+        loop ($i=0; $i < $buf.elems; ++$i)
+          {
+            $msg[$i+CRYPTO_BOX_ZEROBYTES] = $buf[$i];
+          }
+        my $ret = crypto_box_afternm_int($data, $msg, $mlen, $nonce, $!key);
+        if ($ret != 0)
+          {
+            die "crypto_box, bad return code: $ret";
+          }
+        return $data;
+      }
+  }
 
 
 #     const unsigned char pk[crypto_box_PUBLICKEYBYTES];
@@ -102,11 +156,11 @@ sub crypto_box (Blob $buf, CArray[int8] $nonce, CArray[int8] $pk, CArray[int8] $
 
 sub crypto_box_open_int(CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8], CArray[int8]) is symbol('crypto_box_open') is native('./lib/tweetnacl') is export returns int32 { * }
 
+
 sub crypto_box_open(CArray[int8] $c, CArray[int8] $nonce, CArray[int8] $pk, CArray[int8] $sk) is export
 {
     my $msg  = CArray[int8].new;
     my $clen = $c.elems;
-    note "ciphertext len :" ~ $clen;
     $msg[$clen - 1] = 0; #alloc
     my $i;
     loop ($i=0; $i < CRYPTO_BOX_BOXZEROBYTES ; $i++)
@@ -130,3 +184,57 @@ sub crypto_box_open(CArray[int8] $c, CArray[int8] $nonce, CArray[int8] $pk, CArr
     my Str $s = $buf.decode('UTF-8');
     return $s;
 }
+
+# The crypto_box_open_afternm function is callable as follows:
+
+#    #include "crypto_box.h"
+
+#    const unsigned char k[crypto_box_BEFORENMBYTES];
+#    const unsigned char n[crypto_box_NONCEBYTES];
+#    const unsigned char c[...]; unsigned long long clen;
+#    unsigned char m[...];
+
+#    crypto_box_open_afternm(m,c,clen,n,k)
+
+  sub crypto_box_open_afternm_int(CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8]) is symbol('crypto_box_open_afternm') is native('./lib/tweetnacl') is export returns int32 { * }
+
+  class CryptoBoxOpen is export
+  {
+    has $!key;
+    submethod BUILD(CArray[int8] :$pk, CArray[int8] :$sk)
+      {
+        $!key := CArray[int8].new;
+        $!key[CRYPTO_BOX_BEFORENMBYTES - 1] = 0; # extend the array to 32 items
+        my $ret = crypto_box_beforenm_int($!key, $pk, $sk);
+        if ($ret != 0)
+          {
+            die "crypto_box_beforenm_int, bad return code: $ret";
+          }
+      }
+    method decrypt(CArray[int8] $c, CArray[int8] $nonce)
+      {
+        my $msg  = CArray[int8].new;
+        my $clen = $c.elems;
+        $msg[$clen - 1] = 0; #alloc
+        my $i;
+        loop ($i=0; $i < CRYPTO_BOX_BOXZEROBYTES ; $i++)
+          {
+            if ($c[$i] != 0)
+              {
+                die "crypto_box_open, bad ciphertext";
+              }
+          }
+        my $ret = crypto_box_open_afternm_int($msg, $c, $clen, $nonce, $!key);
+        if ($ret != 0)
+          {
+            die "crypto_box_open_afternm_int, bad return code: $ret";
+
+          }
+        my $buf = Buf.new;
+        loop ($i=0; $i < $clen - CRYPTO_BOX_ZEROBYTES ; $i++)
+          {
+            $buf[$i] = $msg[$i + CRYPTO_BOX_ZEROBYTES];
+          }
+        return $buf;
+      }
+  }

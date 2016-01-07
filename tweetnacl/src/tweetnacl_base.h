@@ -3,7 +3,7 @@
 
 /* the original file seems to be a compability layer for NaCL */
 
-/* This here is for direct tweetnacl usage */ 
+/* This here is for direct tweetnacl usage */
 
 #define crypto_box_SECRETKEYBYTES 32
 #define crypto_box_BOXZEROBYTES 16
@@ -26,8 +26,6 @@ extern "C" {
 #endif
 int crypto_box_keypair(u8 *y,u8 *x);
 int crypto_box_afternm(u8 *c,const u8 *m,u64 d,const u8 *n,const u8 *k);
-
-
 int crypto_box_open_afternm(u8 *m,const u8 *c,u64 d,const u8 *n,const u8 *k);
 int crypto_box(u8 *c,const u8 *m,u64 d,const u8 *n,const u8 *y,const u8 *x);
 int crypto_box_open(u8 *m,const u8 *c,u64 d,const u8 *n,const u8 *y,const u8 *x);
