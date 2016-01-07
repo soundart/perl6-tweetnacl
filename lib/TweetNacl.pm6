@@ -109,10 +109,41 @@ sub crypto_box_afternm_int (CArray[int8], CArray[int8], longlong, CArray[int8], 
 
 class Ciphertext
   {
-    has $.data;
+    has $!data;
     has $.nonce;
-    submethod BUILD(CArray[int8] :$!data, CArray[int8] :$!nonce)
+    has $!dlen;
+
+    submethod BUILD(CArray[int8] :$zdata, CArray[int8] :$nonce)
       {
+        $!data := CArray[int8].new;
+        $!dlen = $zdata.elems - CRYPTO_BOX_BOXZEROBYTES;
+        $!data[$!dlen - 1] = 0; #
+        my $i = 0;
+        # remove leading zeros
+        loop ($i = 0; $i < $!dlen; $i++)
+          {
+            $!data[$i] = $zdata[$i + CRYPTO_BOX_BOXZEROBYTES];
+          }
+        $!nonce = $nonce;
+      }
+
+    method data()
+      {
+        my $zdata = CArray[int8].new;
+        my $zlen = $!dlen + CRYPTO_BOX_BOXZEROBYTES;
+        $zdata[$zlen - 1] = 0;
+        # prepend zeros
+        my $i = 0;
+        loop ($i = 0; $i < CRYPTO_BOX_BOXZEROBYTES; $i++)
+          {
+            $zdata[$i] = 0;
+          }
+        loop ($i = 0; $i < $!dlen; $i++)
+          {
+            $zdata[$i + CRYPTO_BOX_BOXZEROBYTES] = $!data[$i];
+          }
+        return $zdata;
+
       }
   }
   class CryptoBox is export
@@ -157,7 +188,7 @@ class Ciphertext
       {
         my $nonce = nonce();
         my $data  = self.encrypt($buf, $nonce);
-        my $ciph  = Ciphertext.new(data => $data, nonce => $nonce);
+        my $ciph  = Ciphertext.new(zdata => $data, nonce => $nonce);
         return $ciph;
       }
   }
@@ -252,6 +283,7 @@ sub crypto_box_open(CArray[int8] $c, CArray[int8] $nonce, CArray[int8] $pk, CArr
           }
         return $buf;
       }
+
     multi method decrypt(Ciphertext $ciph)
       {
         return self.decrypt($ciph.data, $ciph.nonce);
