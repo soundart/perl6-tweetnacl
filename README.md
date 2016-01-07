@@ -17,11 +17,11 @@ SYNOPSIS
 
     # encrypt
     my $cb = CryptoBox.new(pk => $alice.public , sk => $bob.secret);
-    my $data = $cb3.encrypt($msg);
+    my $data = $cb.encrypt($msg);
 
     # decrypt
     my $cbo = CryptoBoxOpen.new(pk => $bob.public , sk => $alice.secret);
-    my $rmsg = $cbo3.decrypt($data);
+    my $rmsg = $cbo.decrypt($data);
     say $rmsg.decode('UTF-8')
 
 
@@ -39,17 +39,21 @@ INSTALL
 DESCRIPTION
 ===========
 
-For details see https://nacl.cr.yp.to/box.html and http://tweetnacl.cr.yp.to/tweetnacl-20131229.pdf.
+For details see
+- https://nacl.cr.yp.to/box.html
+- http://tweetnacl.cr.yp.to/tweetnacl-20131229.pdf.
+
 This is my first perl6 attempt. Feedback very much appriciated.
 
+open questions:
 
-open question:
 - how to do the panda thing
 
 - class Ciphertext: attributes $!data and $!nonce have to be
   transported(e.g. send via network) from encryption to
   decryption host. Should there be a serialize() method?
 
+- howto make "make test" load the shared lib, without native('./lib/tweetnacl')
 
 COPYRIGHT AND LICENSE
 =====================
