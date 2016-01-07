@@ -45,7 +45,7 @@ sub randombytes(int $xlen) is export
     return $data;
 }
 
-sub nonce()
+sub nonce() is export
 {
     return randombytes(24);
 }
@@ -60,12 +60,8 @@ sub nonce()
 
 sub crypto_box_int (CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8], CArray[int8]) is symbol('crypto_box') is native('./lib/tweetnacl') is export returns int32 { * };
 
-sub crypto_box_test (CArray[int8] $c, CArray[int8] $m, longlong $len, CArray[int8] $nonce, CArray[int8] $pk, CArray[int8] $sk) is export
-  {
-    return crypto_box_int ($c, $m, $len, $nonce, $pk, $sk);
-  }
 
-sub crypto_box (Str $m, CArray[int8] $pk, CArray[int8] $sk) is export
+sub crypto_box (Str $m, CArray[int8] $nonce, CArray[int8] $pk, CArray[int8] $sk) is export
 {
     my $crypto_box_NONCEBYTES = 24;
     my $crypto_box_ZEROBYTES = 32;
@@ -84,15 +80,10 @@ sub crypto_box (Str $m, CArray[int8] $pk, CArray[int8] $sk) is export
     {
         $msg[$i+$crypto_box_ZEROBYTES] = $buf[$i];
     }
-    my $nonce = nonce();
     my $ret = crypto_box_int($data, $msg, $mlen, $nonce, $pk, $sk);
     if ($ret != 0)
     {
         die "crypto_box, bad return code: $ret";
-    }
-    loop ($i=0; $i < $mlen; ++$i)
-    {
-        note $i ~ " : " ~ $data[$i];
     }
     return $data;
 }
@@ -105,19 +96,17 @@ sub crypto_box (Str $m, CArray[int8] $pk, CArray[int8] $sk) is export
 #     unsigned char m[...];
 #     crypto_box_open(m,c,clen,n,pk,sk);
 
-sub crypto_box_open_int(CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8], CArray[int8]) is symbol('crypto_box_open') is native('./lib/tweetnacl') returns int32 { * }
+sub crypto_box_open_int(CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8], CArray[int8]) is symbol('crypto_box_open') is native('./lib/tweetnacl') is export returns int32 { * }
 
-sub crypto_box_open(CArray[int8] $c, CArray[int8] $pk, CArray[int8] $sk) is export
+sub crypto_box_open(CArray[int8] $c, CArray[int8] $nonce, CArray[int8] $pk, CArray[int8] $sk) is export
 {
     my $crypto_box_NONCEBYTES = 24;
     my $crypto_box_ZEROBYTES = 32;
     my $crypto_box_BOXZEROBYTES = 16;
     my $msg  = CArray[int8].new;
-    my $nonce  = CArray[int8].new;
     my $clen = $c.elems;
     note "ciphertext len :" ~ $clen;
     $msg[$clen - 1] = 0; #alloc
-    $nonce[$crypto_box_NONCEBYTES - 1] = 0; #alloc
     my $i;
     loop ($i=0; $i < $crypto_box_BOXZEROBYTES ; $i++)
     {
