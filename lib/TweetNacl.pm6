@@ -67,9 +67,9 @@ sub nonce() is export
 sub crypto_box_int (CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8], CArray[int8]) is symbol('crypto_box') is native('./lib/tweetnacl') is export returns int32 { * };
 
 
-sub crypto_box (Str $m, CArray[int8] $nonce, CArray[int8] $pk, CArray[int8] $sk) is export
+sub crypto_box (Blob $buf, CArray[int8] $nonce, CArray[int8] $pk, CArray[int8] $sk) is export
 {
-    my Blob $buf = $m.encode('UTF-8');
+    #my Blob $buf = $m.encode('UTF-8');
     my longlong $mlen = CRYPTO_BOX_ZEROBYTES + $buf.elems;
     my $data = CArray[int8].new;
     my $msg  = CArray[int8].new;

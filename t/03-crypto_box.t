@@ -5,7 +5,7 @@ plan 1;
 
 
 my $keys = keypair.new;
-my $msg = 'Hello World';
+my $msg = 'Hello World'.encode('UTF-8');
 my $nonce = nonce();
 my $data = crypto_box($msg, $nonce, $keys.public , $keys.secret);
 my $rmsg = crypto_box_open($data, $nonce, $keys.public , $keys.secret);
