@@ -30,4 +30,4 @@ my $cb3 = CryptoBox.new(pk => $alice.public , sk => $bob.secret);
 my $data3 = $cb3.encrypt($msg);
 my $cbo3 = CryptoBoxOpen.new(pk => $bob.public , sk => $alice.secret);
 my $rmsg3 = $cbo3.decrypt($data3);
-is $rmsg3.decode('UTF-8'), $msg, "Round, precomputation interface, nonce free interface";
+is $rmsg3.decode('UTF-8'), $msg, "Roundtrip, precomputation interface, nonce free interface";

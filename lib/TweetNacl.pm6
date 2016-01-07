@@ -109,7 +109,7 @@ sub crypto_box_afternm_int (CArray[int8], CArray[int8], longlong, CArray[int8], 
 
 class Ciphertext
   {
-    has $!data;
+    has $.data;
     has $.nonce;
     has $!dlen;
 
@@ -127,7 +127,8 @@ class Ciphertext
         $!nonce = $nonce;
       }
 
-    method data()
+    # return data with prepend zeros
+    method zdata()
       {
         my $zdata = CArray[int8].new;
         my $zlen = $!dlen + CRYPTO_BOX_BOXZEROBYTES;
@@ -286,6 +287,6 @@ sub crypto_box_open(CArray[int8] $c, CArray[int8] $nonce, CArray[int8] $pk, CArr
 
     multi method decrypt(Ciphertext $ciph)
       {
-        return self.decrypt($ciph.data, $ciph.nonce);
+        return self.decrypt($ciph.zdata, $ciph.nonce);
       }
 }
