@@ -1,7 +1,7 @@
 use v6;
 use NativeCall;
 use LibraryMake;
-
+use TweetNacl::Constants;
 unit module TweetNacl;
 
 
@@ -19,17 +19,16 @@ sub library {
 
 sub crypto_box_keypair_int(CArray[int8], CArray[int8]) is symbol('crypto_box_keypair') is native('./lib/tweetnacl') returns int { * }
 
-  class keypair
+  class keypair is export
   {
     has $.secret;
     has $.public;
     submethod BUILD()
       {
-        my $number_of_ints = 32;
         $!secret := CArray[int8].new;
         $!public := CArray[int8].new;
-        $!secret[$number_of_ints - 1] = 0; # extend the array to 32 items
-        $!public[$number_of_ints - 1] = 0; # extend the array to 32 items
+        $!secret[CRYPTO_BOX_SECRETKEYBYTES - 1] = 0; # extend the array to 32 items
+        $!public[CRYPTO_BOX_SECRETKEYBYTES - 1] = 0; # extend the array to 32 items
         my $ret = crypto_box_keypair_int($!public,$!secret);
         if ($ret != 0)
           {
@@ -38,17 +37,6 @@ sub crypto_box_keypair_int(CArray[int8], CArray[int8]) is symbol('crypto_box_key
       }
   }
 #https://nacl.cr.yp.to/box.html
-sub crypto_box_keypair() is export
-{
-    my $secret_key = CArray[int8].new;
-    my $public_key = CArray[int8].new;
-    my $number_of_ints = 32;
-    $secret_key[$number_of_ints - 1] = 0; # extend the array to 32 items
-    $public_key[$number_of_ints - 1] = 0; # extend the array to 32 items
-    my $n = crypto_box_keypair_int($public_key,$secret_key);
-    my %ret := { secret_key => $secret_key, public_key => $public_key};
-    return %ret;
-}
 
 # void randombytes(unsigned char *x,unsigned long long xlen)
 
@@ -81,22 +69,20 @@ sub crypto_box_int (CArray[int8], CArray[int8], longlong, CArray[int8], CArray[i
 
 sub crypto_box (Str $m, CArray[int8] $nonce, CArray[int8] $pk, CArray[int8] $sk) is export
 {
-    my $crypto_box_NONCEBYTES = 24;
-    my $crypto_box_ZEROBYTES = 32;
     my Blob $buf = $m.encode('UTF-8');
-    my longlong $mlen = $crypto_box_ZEROBYTES + $buf.elems;
+    my longlong $mlen = CRYPTO_BOX_ZEROBYTES + $buf.elems;
     my $data = CArray[int8].new;
     my $msg  = CArray[int8].new;
     $data[$mlen - 1] = 0; #alloc
     $msg[$mlen - 1] = 0; #alloc
     my $i;
-    loop ($i=0; $i < $crypto_box_ZEROBYTES ; $i++)
+    loop ($i=0; $i < CRYPTO_BOX_ZEROBYTES ; $i++)
     {
         $msg[$i] = 0;
     }
     loop ($i=0; $i < $buf.elems; ++$i)
     {
-        $msg[$i+$crypto_box_ZEROBYTES] = $buf[$i];
+        $msg[$i+CRYPTO_BOX_ZEROBYTES] = $buf[$i];
     }
     my $ret = crypto_box_int($data, $msg, $mlen, $nonce, $pk, $sk);
     if ($ret != 0)
@@ -118,15 +104,12 @@ sub crypto_box_open_int(CArray[int8], CArray[int8], longlong, CArray[int8], CArr
 
 sub crypto_box_open(CArray[int8] $c, CArray[int8] $nonce, CArray[int8] $pk, CArray[int8] $sk) is export
 {
-    my $crypto_box_NONCEBYTES = 24;
-    my $crypto_box_ZEROBYTES = 32;
-    my $crypto_box_BOXZEROBYTES = 16;
     my $msg  = CArray[int8].new;
     my $clen = $c.elems;
     note "ciphertext len :" ~ $clen;
     $msg[$clen - 1] = 0; #alloc
     my $i;
-    loop ($i=0; $i < $crypto_box_BOXZEROBYTES ; $i++)
+    loop ($i=0; $i < CRYPTO_BOX_BOXZEROBYTES ; $i++)
     {
         if ($c[$i] != 0)
         {
@@ -140,9 +123,9 @@ sub crypto_box_open(CArray[int8] $c, CArray[int8] $nonce, CArray[int8] $pk, CArr
 
     }
     my $buf = Buf.new;
-    loop ($i=0; $i < $clen - $crypto_box_ZEROBYTES ; $i++)
+    loop ($i=0; $i < $clen - CRYPTO_BOX_ZEROBYTES ; $i++)
     {
-        $buf[$i] = $msg[$i + $crypto_box_ZEROBYTES];
+        $buf[$i] = $msg[$i + CRYPTO_BOX_ZEROBYTES];
     }
     my Str $s = $buf.decode('UTF-8');
     return $s;

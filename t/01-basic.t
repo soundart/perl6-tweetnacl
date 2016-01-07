@@ -1,7 +1,10 @@
 use v6;
 use Test;
 use TweetNacl;
-plan 1;
+use NativeCall;
+plan 2;
 
-my %result = crypto_box_keypair();
-cmp-ok %result.keys , '==', ('public_key', 'secret_key');
+
+my $keypair = keypair.new;
+isa-ok $keypair.secret, CArray[int8];
+isa-ok $keypair.public, CArray[int8];

@@ -4,10 +4,10 @@ use TweetNacl;
 plan 1;
 
 
-my %ckeys = crypto_box_keypair();
+my $keys = keypair.new;
 my $msg = 'Hello World';
 my $nonce = nonce();
-my $data = crypto_box($msg, $nonce, %ckeys<public_key> , %ckeys<secret_key>);
-my $rmsg = crypto_box_open($data, $nonce, %ckeys<public_key> , %ckeys<secret_key>);
+my $data = crypto_box($msg, $nonce, $keys.public , $keys.secret);
+my $rmsg = crypto_box_open($data, $nonce, $keys.public , $keys.secret);
 note $rmsg;
 is $rmsg, $msg;
