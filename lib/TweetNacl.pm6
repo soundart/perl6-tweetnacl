@@ -5,6 +5,126 @@ use TweetNacl::Constants;
 
 unit module TweetNacl;
 
+=begin pod
+=head1 NAME
+
+	   TweetNacl - crypto library
+
+=head1 SYNOPSIS
+
+    use TweetNacl;
+
+    # create keys
+    my $alice = keypair.new;
+    my $bob = keypair.new;
+
+    # create Buf to encrypt
+    my $msg = 'Hello World'.encode('UTF-8');
+
+    # encrypt
+    my $cb = CryptoBox.new(pk => $alice.public , sk => $bob.secret);
+    my $data = $cb.encrypt($msg);
+
+    # decrypt
+    my $cbo = CryptoBoxOpen.new(pk => $bob.public , sk => $alice.secret);
+    my $rmsg = $cbo.decrypt($data);
+    say $rmsg.decode('UTF-8')
+
+=head1 DESCRIPTION
+
+=head2 key generation
+
+   class keypair creates a public/secret keypair. And stores them in
+   attributes public and secret.
+
+=head2 ciphertext handling
+
+   class ciphertext consists of two attributes: data and a nonce.
+
+   The constructor accepts:
+   - CArray with 16 leading zeros, removes them and stores them into the attribute data.
+   - And a 24Byte nonce.
+
+   The data without leading zeros can be accessed with the .data accessor.
+   The data with leading zeros can be accessed with the .zdata accessor.
+
+   The idea is to transport data(no leading zeros) and nonce to the
+   receiver combine them into a new ciphertext and decrypt into the
+   plaintext message. Somehow this is still missing...
+
+=head2 encryption
+
+   class CryptoBox encrypts for a public key
+
+   The constructor accepts:
+    - the public key of the receiver
+    - the secret key of the sender
+
+   method encrypt accepts a Buf and returns class ciphertext
+
+=head2 decryption
+
+   class CryptoBoxOpen decrypts for and verifies the sender
+   The constructor accepts:
+    - the secret key of the receiver
+    - the public key of the sender
+
+   method decrypt accepts a ciphertext and returns a Buf
+
+=head1 OPTIONS
+
+=head1 RETURN VALUE
+
+   In case problems arise this is reported by an exception.
+
+=head1 ERRORS
+
+
+=head1 DIAGNOSTICS
+
+
+=head1 EXAMPLES
+
+
+=head1 ENVIRONMENT
+
+
+=head1 FILES
+
+
+=head1 CAVEATS
+
+   Various other(not documented) classes and methods might be exported
+   by the library. Please ignore them.
+
+=head1 BUGS
+
+
+=head1 RESTRICTIONS
+
+
+=head1 NOTES
+
+
+=head1 SEE ALSO
+
+=head1 AUTHOR
+
+    Frank Hartmann
+
+=head1 HISTORY
+
+    v0.0.1 initial version offered at #perl6
+
+=end pod
+
+
+
+DOC INIT {
+        use Pod::To::Text;
+        pod2text($=pod);
+}
+
 constant $tweetnacl = %?RESOURCES<libraries/tweetnacl>.Str;
 
 # https://nacl.cr.yp.to/box.html
