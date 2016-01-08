@@ -1,7 +1,7 @@
 use v6;
 use Test;
 use TweetNacl;
-plan 4;
+plan 8;
 
 
 my $alice = keypair.new;
@@ -31,3 +31,9 @@ my $data3 = $cb3.encrypt($msg);
 my $cbo3 = CryptoBoxOpen.new(pk => $bob.public , sk => $alice.secret);
 my $rmsg3 = $cbo3.decrypt($data3);
 is $rmsg3.decode('UTF-8'), $msg, "Roundtrip, precomputation interface, nonce free interface";
+
+# should throw
+dies-ok { CryptoBox.new(pk => $alice.public); } , "Error, Missing Parameter";
+dies-ok { CryptoBox.new(sk => $alice.public); } , "Error, Missing Parameter";
+dies-ok { CryptoBoxOpen.new(pk => $alice.public); } , "Error, Missing Parameter";
+dies-ok { CryptoBoxOpen.new(sk => $alice.public); } , "Error, Missing Parameter";
