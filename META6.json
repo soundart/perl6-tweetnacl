@@ -14,7 +14,7 @@
   ],
   "description" : "tweetnacl p6 bindings",
   "test-depends" : [ ],
-  "version" : "*",
+  "version" : "0.0.1",
   "authors" : [
     "Frank Hartmann"
   ]
