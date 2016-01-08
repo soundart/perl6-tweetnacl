@@ -4,20 +4,11 @@ use LibraryMake;
 use TweetNacl::Constants;
 unit module TweetNacl;
 
-
-sub library {
-    my $so = get-vars('')<SO>;
-    for @*INC {
-        if ($_~'/tweetnacl'~$so).path.r {
-            return $_~'/tweetnacl'~$so;
-        }
-    }
-    die "Unable to find libtweetnacl";
-}
+constant $tweetnacl = %?RESOURCES<libraries/tweetnacl>.Str;
 # https://nacl.cr.yp.to/box.html
 # int crypto_box_keypair(u8 *y,u8 *x);
 
-sub crypto_box_keypair_int(CArray[int8], CArray[int8]) is symbol('crypto_box_keypair') is native('./lib/tweetnacl') returns int { * }
+sub crypto_box_keypair_int(CArray[int8], CArray[int8]) is symbol('crypto_box_keypair') is native($tweetnacl) returns int { * }
 
   class keypair is export
   {
@@ -41,7 +32,7 @@ sub crypto_box_keypair_int(CArray[int8], CArray[int8]) is symbol('crypto_box_key
 # void randombytes(unsigned char *x,unsigned long long xlen)
 
 # todo check signedness of xlen
-sub randombytes_int(CArray[int8], longlong) is symbol('randombytes') is native('./lib/tweetnacl') { * }
+sub randombytes_int(CArray[int8], longlong) is symbol('randombytes') is native($tweetnacl) { * }
 
 sub randombytes(int $xlen) is export
 {
@@ -64,7 +55,7 @@ sub nonce() is export
 #
 #     crypto_box(c,m,mlen,n,pk,sk);
 
-sub crypto_box_int (CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8], CArray[int8]) is symbol('crypto_box') is native('./lib/tweetnacl') is export returns int32 { * };
+sub crypto_box_int (CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8], CArray[int8]) is symbol('crypto_box') is native($tweetnacl) is export returns int32 { * };
 
 sub crypto_box (Blob $buf, CArray[int8] $nonce, CArray[int8] $pk, CArray[int8] $sk) is export
 {
@@ -96,7 +87,7 @@ sub crypto_box (Blob $buf, CArray[int8] $nonce, CArray[int8] $pk, CArray[int8] $
 
 #      crypto_box_beforenm(k,pk,sk);#int crypto_box_beforenm(u8 *k,const u8 *y,const u8 *x);
 
-  sub crypto_box_beforenm_int (CArray[int8], CArray[int8], CArray[int8]) is symbol('crypto_box_beforenm') is native('./lib/tweetnacl') is export returns int32 { * };
+  sub crypto_box_beforenm_int (CArray[int8], CArray[int8], CArray[int8]) is symbol('crypto_box_beforenm') is native($tweetnacl) is export returns int32 { * };
 
 # const unsigned char k[crypto_box_BEFORENMBYTES];
 # const unsigned char n[crypto_box_NONCEBYTES];
@@ -105,7 +96,7 @@ sub crypto_box (Blob $buf, CArray[int8] $nonce, CArray[int8] $pk, CArray[int8] $
 
 # crypto_box_open_afternm(m,c,clen,n,k);
 
-sub crypto_box_afternm_int (CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8]) is symbol('crypto_box_afternm') is native('./lib/tweetnacl') is export returns int32 { * };
+sub crypto_box_afternm_int (CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8]) is symbol('crypto_box_afternm') is native($tweetnacl) is export returns int32 { * };
 
 class Ciphertext
   {
@@ -202,7 +193,7 @@ class Ciphertext
 #     unsigned char m[...];
 #     crypto_box_open(m,c,clen,n,pk,sk);
 
-sub crypto_box_open_int(CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8], CArray[int8]) is symbol('crypto_box_open') is native('./lib/tweetnacl') is export returns int32 { * }
+sub crypto_box_open_int(CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8], CArray[int8]) is symbol('crypto_box_open') is native($tweetnacl) is export returns int32 { * }
 
 
 sub crypto_box_open(CArray[int8] $c, CArray[int8] $nonce, CArray[int8] $pk, CArray[int8] $sk) is export
@@ -243,7 +234,7 @@ sub crypto_box_open(CArray[int8] $c, CArray[int8] $nonce, CArray[int8] $pk, CArr
 
 #    crypto_box_open_afternm(m,c,clen,n,k)
 
-  sub crypto_box_open_afternm_int(CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8]) is symbol('crypto_box_open_afternm') is native('./lib/tweetnacl') is export returns int32 { * }
+  sub crypto_box_open_afternm_int(CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8]) is symbol('crypto_box_open_afternm') is native($tweetnacl) is export returns int32 { * }
 
   class CryptoBoxOpen is export
   {

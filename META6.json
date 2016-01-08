@@ -1,5 +1,5 @@
 {
-  "name" : "Add",
+  "name" : "TweetNacl",
   "source-url" : "git://github.com/soundart/perl6-tweetnacl.git",
   "perl" : "v6",
   "resources" : [

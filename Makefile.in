@@ -1,7 +1,10 @@
-all: %DESTDIR%/libtweetnacl%SO%
+all: %DESTDIR%/resources/libraries/%tweetnacl%
 
-%DESTDIR%/libtweetnacl%SO%: tweetnacl%O% devurandom%O%
-	    %LD% %LDSHARED% %LDFLAGS% %LIBS% %LDOUT%%DESTDIR%/libtweetnacl%SO% $^
+clean:
+	-rm %DESTDIR%/resources/libraries/%tweetnacl%
+
+%DESTDIR%/resources/libraries/%tweetnacl%: tweetnacl%O% devurandom%O%
+	    %LD% %LDSHARED% %LDFLAGS% %LIBS% %LDOUT%%DESTDIR%/resources/libraries/%tweetnacl% $^
 
 tweetnacl%O%: tweetnacl/src/tweetnacl.c
 	    %CC% -c %CCSHARED% %CCFLAGS% %CCOUT% $@ $^

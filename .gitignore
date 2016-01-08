@@ -1,7 +1,7 @@
 /blib/
 Makefile
 *.o
-/resources/*.so
-/resources/*.dylib
+/resources/*/*.so
+/resources/*/*.dylib
 .precomp/
 *~
