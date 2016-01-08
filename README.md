@@ -34,7 +34,7 @@ INSTALL
     perl6 Configure.pl6
     make
     make test
-    # panda install git://github.com/soundart/perl6-tweetnacl.git
+    panda install git://github.com/soundart/perl6-tweetnacl.git
 
 DESCRIPTION
 ===========
@@ -47,13 +47,9 @@ This is my first perl6 attempt. Feedback very much appreciated.
 
 open questions:
 
-- how to do the panda thing
-
 - class Ciphertext: attributes $!data and $!nonce have to be
   transported(e.g. send via network) from encryption to
   decryption host. Should there be a serialize() method?
-
-- howto make "make test" load the shared lib, without native('./lib/tweetnacl')
 
 COPYRIGHT AND LICENSE
 =====================

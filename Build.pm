@@ -7,7 +7,7 @@ use Shell::Command;
 class Build is Panda::Builder {
     method build($dir) {
         my %vars = get-vars($dir);
-        %vars<p5helper> = $*VM.platform-library-name('tweetnacl'.IO);
+        %vars<tweetnacl> = $*VM.platform-library-name('tweetnacl'.IO);
         mkdir "$dir/resources" unless "$dir/resources".IO.e;
         mkdir "$dir/resources/libraries" unless "$dir/resources/libraries".IO.e;
         process-makefile($dir, %vars);
