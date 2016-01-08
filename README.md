@@ -1,7 +1,10 @@
+
+[![Build Status](https://travis-ci.org/soundart/perl6-tweetnacl.svg?branch=master)](https://travis-ci.org/soundart/perl6-tweetnacl)
+
 NAME
 ====
 
-TweetNacl - crypto lib
+TweetNacl - pulic key crypto lib
 
 SYNOPSIS
 ========
