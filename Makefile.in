@@ -1,7 +1,9 @@
+.PHONY: clean test
+
 all: %DESTDIR%/resources/libraries/%tweetnacl%
 
 clean:
-	-rm %DESTDIR%/resources/libraries/%tweetnacl%
+	-rm %DESTDIR%/resources/libraries/%tweetnacl% tweetnacl%O% devurandom%O%
 
 %DESTDIR%/resources/libraries/%tweetnacl%: tweetnacl%O% devurandom%O%
 	    %LD% %LDSHARED% %LDFLAGS% %LIBS% %LDOUT%%DESTDIR%/resources/libraries/%tweetnacl% $^
@@ -13,4 +15,4 @@ devurandom%O%: tweetnacl/contrib/randombytes/devurandom.c
 	    %CC% -c %CCSHARED% %CCFLAGS% %CCOUT% $@ $^
 
 test: all
-	prove -ve 'perl6 -Ilib' t
+	prove -e 'perl6 -Ilib' t

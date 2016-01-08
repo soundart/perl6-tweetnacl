@@ -1,21 +1,22 @@
 {
-  "name" : "TweetNacl",
-  "source-url" : "git://github.com/soundart/perl6-tweetnacl.git",
-  "perl" : "v6",
-  "resources" : [
-    "libtweetnacl.dylib"
-  ],
-  "build-depends" : [ ],
-  "provides" : {
-    "Add" : "lib/TweetNacl.pm6"
-  },
-  "depends" : [
-    "LibraryMake"
-  ],
-  "description" : "tweetnacl p6 bindings",
-  "test-depends" : [ ],
-  "version" : "0.0.1",
-  "authors" : [
-    "Frank Hartmann"
-  ]
+    "name" : "TweetNacl",
+    "source-url" : "git://github.com/soundart/perl6-tweetnacl.git",
+    "perl" : "v6.c",
+    "resources" : [
+        "libraries/tweetnacl"
+    ],
+    "build-depends" : [ ],
+    "provides" : {
+        "TweetNacl" : "lib/TweetNacl.pm6"
+    },
+    "depends" : [
+        "LibraryMake"
+    ],
+    "description" : "tweetnacl p6 bindings",
+    "test-depends" : [ ],
+    "version" : "0.0.1",
+    "license"       : "Public Domain",
+    "authors" : [
+        "Frank Hartmann"
+    ]
 }
