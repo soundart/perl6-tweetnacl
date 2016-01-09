@@ -181,7 +181,7 @@ sub nonce() is export
 
 sub crypto_box_int (CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8], CArray[int8]) is symbol('crypto_box') is native($tweetnacl) is export returns int32 { * };
 
-sub prepend_zeros(Blob $buf!, Int $num_zeros!)
+sub prepend_zeros($buf!, Int $num_zeros!)
 {
     my $mlen = $num_zeros + $buf.elems;
     my $msg  = CArray[int8].new;
@@ -251,19 +251,7 @@ class Ciphertext
     # return data with prepend zeros
     method zdata()
     {
-        my $zdata = CArray[int8].new;
-        my $zlen = $!dlen + CRYPTO_BOX_BOXZEROBYTES;
-        $zdata[$zlen - 1] = 0;
-        # prepend zeros
-        my $i = 0;
-        loop ($i = 0; $i < CRYPTO_BOX_BOXZEROBYTES; $i++)
-        {
-            $zdata[$i] = 0;
-        }
-        loop ($i = 0; $i < $!dlen; $i++)
-        {
-            $zdata[$i + CRYPTO_BOX_BOXZEROBYTES] = $!data[$i];
-        }
+        my $zdata = prepend_zeros($!data, CRYPTO_BOX_BOXZEROBYTES);
         return $zdata;
 
     }
@@ -286,18 +274,8 @@ class CryptoBox is export
     {
         my longlong $mlen = CRYPTO_BOX_ZEROBYTES + $buf.elems;
         my $data = CArray[int8].new;
-        my $msg  = CArray[int8].new;
         $data[$mlen - 1] = 0;   #alloc
-        $msg[$mlen - 1] = 0;    #alloc
-        my $i;
-        loop ($i=0; $i < CRYPTO_BOX_ZEROBYTES ; $i++)
-        {
-            $msg[$i] = 0;
-        }
-        loop ($i=0; $i < $buf.elems; ++$i)
-        {
-            $msg[$i+CRYPTO_BOX_ZEROBYTES] = $buf[$i];
-        }
+        my $msg  = prepend_zeros($buf, CRYPTO_BOX_ZEROBYTES);
         my $ret = crypto_box_afternm_int($data, $msg, $mlen, $nonce, $!key);
         if ($ret != 0) {
             die "crypto_box, bad return code: $ret";
