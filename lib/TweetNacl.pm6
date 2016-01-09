@@ -108,6 +108,9 @@ unit module TweetNacl;
 
 =head1 SEE ALSO
 
+   - https://nacl.cr.yp.to/box.html
+   - http://tweetnacl.cr.yp.to/tweetnacl-20131229.pdf.
+
 =head1 AUTHOR
 
     Frank Hartmann
@@ -155,7 +158,7 @@ class keypair is export
 # todo check signedness of xlen
 sub randombytes_int(CArray[int8], longlong) is symbol('randombytes') is native($tweetnacl) { * }
 
-sub randombytes(int $xlen) is export
+sub randombytes(int $xlen!) is export
 {
     my $data = CArray[int8].new;
     $data[$xlen - 1] = 0;
@@ -178,22 +181,29 @@ sub nonce() is export
 
 sub crypto_box_int (CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8], CArray[int8]) is symbol('crypto_box') is native($tweetnacl) is export returns int32 { * };
 
-sub crypto_box (Blob $buf, CArray[int8] $nonce, CArray[int8] $pk, CArray[int8] $sk) is export
+sub prepend_zeros(Blob $buf!, Int $num_zeros!)
 {
-    my longlong $mlen = CRYPTO_BOX_ZEROBYTES + $buf.elems;
-    my $data = CArray[int8].new;
+    my $mlen = $num_zeros + $buf.elems;
     my $msg  = CArray[int8].new;
-    $data[$mlen - 1] = 0;       #alloc
     $msg[$mlen - 1] = 0;        #alloc
-    my $i;
-    loop ($i=0; $i < CRYPTO_BOX_ZEROBYTES ; $i++)
+    my Int $i;
+    loop ($i=0; $i < $num_zeros ; $i++)
     {
         $msg[$i] = 0;
     }
     loop ($i=0; $i < $buf.elems; ++$i)
     {
-        $msg[$i+CRYPTO_BOX_ZEROBYTES] = $buf[$i];
+        $msg[$i+$num_zeros] = $buf[$i];
     }
+    return $msg;
+}
+
+sub crypto_box (Blob $buf!, CArray[int8] $nonce!, CArray[int8] $pk!, CArray[int8] $sk!) is export
+{
+    my longlong $mlen = CRYPTO_BOX_ZEROBYTES + $buf.elems;
+    my $data = CArray[int8].new;
+    $data[$mlen - 1] = 0;       #alloc
+    my $msg  = prepend_zeros($buf, CRYPTO_BOX_ZEROBYTES);
     my $ret = crypto_box_int($data, $msg, $mlen, $nonce, $pk, $sk);
     if ($ret != 0) {
         die "crypto_box, bad return code: $ret";
@@ -315,7 +325,7 @@ class CryptoBox is export
 sub crypto_box_open_int(CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8], CArray[int8]) is symbol('crypto_box_open') is native($tweetnacl) is export returns int32 { * }
 
 
-sub crypto_box_open(CArray[int8] $c, CArray[int8] $nonce, CArray[int8] $pk, CArray[int8] $sk) is export
+sub crypto_box_open(CArray[int8] $c!, CArray[int8] $nonce!, CArray[int8] $pk!, CArray[int8] $sk!) is export
 {
     my $msg  = CArray[int8].new;
     my $clen = $c.elems;
