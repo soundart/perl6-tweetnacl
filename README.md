@@ -9,7 +9,7 @@ TweetNacl - pulic key crypto lib
 SYNOPSIS
 ========
 
-    use TweetNacl;
+    use Crypt::TweetNacl::PublicKey;
 
     # create keys
     my $alice = keypair.new;

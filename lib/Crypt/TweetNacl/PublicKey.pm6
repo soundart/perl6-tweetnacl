@@ -8,11 +8,11 @@ unit module Crypt::TweetNacl::PublicKey;
 =begin pod
 =head1 NAME
 
-	   TweetNacl - crypto library
+	   Crypt::TweetNacl::PublicKey - public key crypto library
 
 =head1 SYNOPSIS
 
-    use TweetNacl;
+    use Crypt::TweetNacl::PublicKey;
 
     # create keys
     my $alice = keypair.new;
