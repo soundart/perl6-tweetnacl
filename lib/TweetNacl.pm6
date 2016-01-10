@@ -128,6 +128,21 @@ DOC INIT {
         pod2text($=pod);
 }
 
+
+sub remove_leading_elems($return_type!, $buf!, Int $num_elems) is export(:TESTING)
+{
+    my $data := $return_type.new;
+    my $dlen = $buf.elems - $num_elems;
+    $data[$dlen - 1] = 0;
+    my $i = 0;
+    loop ($i = 0; $i < $dlen; $i++)
+    {
+        $data[$i] = $buf[$i + $num_elems];
+    }
+    return $data;
+}
+
+
 constant $tweetnacl = %?RESOURCES<libraries/tweetnacl>.Str;
 
 # https://nacl.cr.yp.to/box.html
@@ -236,15 +251,8 @@ class Ciphertext
 
     submethod BUILD(CArray[int8] :$zdata!, CArray[int8] :$nonce!)
     {
-        $!data := CArray[int8].new;
-        $!dlen = $zdata.elems - CRYPTO_BOX_BOXZEROBYTES;
-        $!data[$!dlen - 1] = 0; #
-        my $i = 0;
-        # remove leading zeros
-        loop ($i = 0; $i < $!dlen; $i++)
-        {
-            $!data[$i] = $zdata[$i + CRYPTO_BOX_BOXZEROBYTES];
-        }
+        $!data = remove_leading_elems(CArray[int8], $zdata, CRYPTO_BOX_BOXZEROBYTES);
+        $!dlen = $!data.elems;
         $!nonce = $nonce;
     }
 
@@ -320,12 +328,7 @@ sub crypto_box_open(CArray[int8] $c!, CArray[int8] $nonce!, CArray[int8] $pk!, C
         die "crypto_box_open, bad return code: $ret";
 
     }
-    my $buf = Buf.new;
-    loop ($i=0; $i < $clen - CRYPTO_BOX_ZEROBYTES ; $i++)
-    {
-        $buf[$i] = $msg[$i + CRYPTO_BOX_ZEROBYTES];
-    }
-    return $buf;
+    return remove_leading_elems(Buf, $msg, CRYPTO_BOX_ZEROBYTES);
 }
 
 # The crypto_box_open_afternm function is callable as follows:
@@ -370,12 +373,7 @@ class CryptoBoxOpen is export
             die "crypto_box_open_afternm_int, bad return code: $ret";
 
         }
-        my $buf = Buf.new;
-        loop ($i=0; $i < $clen - CRYPTO_BOX_ZEROBYTES ; $i++)
-        {
-            $buf[$i] = $msg[$i + CRYPTO_BOX_ZEROBYTES];
-        }
-        return $buf;
+        return remove_leading_elems(Buf, $msg, CRYPTO_BOX_ZEROBYTES);
     }
 
     multi method decrypt(Ciphertext $ciph!)
