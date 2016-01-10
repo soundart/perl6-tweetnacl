@@ -1,9 +1,9 @@
 use v6;
 use NativeCall;
 use LibraryMake;
-use TweetNacl::Constants;
+use Crypt::TweetNacl::Constants;
 
-unit module Crypt::TweetNacl;
+unit module Crypt::TweetNacl::PublicKey;
 
 =begin pod
 =head1 NAME
@@ -88,6 +88,11 @@ unit module Crypt::TweetNacl;
 
 =head1 ENVIRONMENT
 
+   panda --installed list
+   - Linenoise        [installed]
+   - TweetNacl        [installed]
+   - panda            [installed]
+
 
 =head1 FILES
 
@@ -127,7 +132,6 @@ DOC INIT {
         use Pod::To::Text;
         pod2text($=pod);
 }
-
 
 sub remove_leading_elems($return_type!, $buf!, Int $num_elems) is export(:TESTING)
 {

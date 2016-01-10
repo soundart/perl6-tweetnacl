@@ -1,6 +1,6 @@
 use v6;
 use Test;
-use TweetNacl;
+use Crypt::TweetNacl::PublicKey;
 use NativeCall;
 plan 2;
 

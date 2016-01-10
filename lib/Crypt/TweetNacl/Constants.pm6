@@ -1,6 +1,6 @@
 use v6;
 
-unit module TweetNacl::Constants;
+unit module Crypt::TweetNacl::Constants;
 
 constant CRYPTO_BOX_SECRETKEYBYTES  is export = 32;
 constant CRYPTO_BOX_BOXZEROBYTES  is export = 16;

@@ -1,6 +1,7 @@
 use v6;
 use Test;
-use Crypt::TweetNacl;
+use Crypt::TweetNacl::PublicKey;
+
 plan 8;
 
 
