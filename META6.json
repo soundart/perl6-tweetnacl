@@ -7,7 +7,7 @@
     ],
     "build-depends" : [ ],
     "provides" : {
-        "Crypt::TweetNacl" : "lib/Crypt/TweetNacl.pm6",
+        "Crypt::TweetNacl::PublicKey" : "lib/Crypt/TweetNacl/PublicKey.pm6",
         "Crypt::TweetNacl::Constants" : "lib/Crypt/TweetNacl/Constants.pm6"
     },
     "depends" : [
