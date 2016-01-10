@@ -15,8 +15,8 @@ unit module Crypt::TweetNacl::PublicKey;
     use Crypt::TweetNacl::PublicKey;
 
     # create keys
-    my $alice = keypair.new;
-    my $bob = keypair.new;
+    my $alice = KeyPair.new;
+    my $bob = KeyPair.new;
 
     # create Buf to encrypt
     my $msg = 'Hello World'.encode('UTF-8');
@@ -34,7 +34,7 @@ unit module Crypt::TweetNacl::PublicKey;
 
 =head2 key generation
 
-   class keypair creates a public/secret keypair. And stores them in
+   class KeyPair creates a public/secret keypair. And stores them in
    attributes public and secret.
 
 =head2 ciphertext handling
@@ -153,7 +153,7 @@ sub remove_leading_elems($return_type!, $buf!, Int $num_elems) is export(:TESTIN
 
 sub crypto_box_keypair_int(CArray[int8], CArray[int8]) is symbol('crypto_box_keypair') is native(TWEETNACL) returns int { * }
 
-class keypair is export
+class KeyPair is export
 {
     has $.secret;
     has $.public;

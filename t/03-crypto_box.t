@@ -5,8 +5,8 @@ use Crypt::TweetNacl::PublicKey;
 plan 8;
 
 
-my $alice = keypair.new;
-my $bob = keypair.new;
+my $alice = KeyPair.new;
+my $bob = KeyPair.new;
 my $msg = 'Hello World'.encode('UTF-8');
 
 my $nonce = nonce();

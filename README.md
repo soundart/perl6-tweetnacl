@@ -12,8 +12,8 @@ SYNOPSIS
     use Crypt::TweetNacl::PublicKey;
 
     # create keys
-    my $alice = keypair.new;
-    my $bob = keypair.new;
+    my $alice = KeyPair.new;
+    my $bob = KeyPair.new;
 
     # create Buf to encrypt
     my $msg = 'Hello World'.encode('UTF-8');

@@ -5,6 +5,6 @@ use NativeCall;
 plan 2;
 
 
-my $keypair = keypair.new;
+my $keypair = KeyPair.new;
 isa-ok $keypair.secret, CArray[int8];
 isa-ok $keypair.public, CArray[int8];
