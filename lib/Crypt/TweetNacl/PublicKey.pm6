@@ -147,12 +147,11 @@ sub remove_leading_elems($return_type!, $buf!, Int $num_elems) is export(:TESTIN
 }
 
 
-constant $tweetnacl = %?RESOURCES<libraries/tweetnacl>.Str;
 
 # https://nacl.cr.yp.to/box.html
 # int crypto_box_keypair(u8 *y,u8 *x);
 
-sub crypto_box_keypair_int(CArray[int8], CArray[int8]) is symbol('crypto_box_keypair') is native($tweetnacl) returns int { * }
+sub crypto_box_keypair_int(CArray[int8], CArray[int8]) is symbol('crypto_box_keypair') is native(TWEETNACL) returns int { * }
 
 class keypair is export
 {
@@ -175,7 +174,7 @@ class keypair is export
 # void randombytes(unsigned char *x,unsigned long long xlen)
 
 # todo check signedness of xlen
-sub randombytes_int(CArray[int8], longlong) is symbol('randombytes') is native($tweetnacl) { * }
+sub randombytes_int(CArray[int8], longlong) is symbol('randombytes') is native(TWEETNACL) is export { * }
 
 sub randombytes(int $xlen!) is export
 {
@@ -190,17 +189,8 @@ sub nonce() is export
     return randombytes(CRYPTO_BOX_NONCEBYTES);
 }
 
-# const unsigned char pk[crypto_box_PUBLICKEYBYTES];
-#     const unsigned char sk[crypto_box_SECRETKEYBYTES];
-#     const unsigned char n[crypto_box_NONCEBYTES];
-#     const unsigned char m[...]; unsigned long long mlen;
-#     unsigned char c[...];
-#
-#     crypto_box(c,m,mlen,n,pk,sk);
 
-sub crypto_box_int (CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8], CArray[int8]) is symbol('crypto_box') is native($tweetnacl) is export returns int32 { * };
-
-sub prepend_zeros($buf!, Int $num_zeros!)
+sub prepend_zeros($buf!, Int $num_zeros!) is export(:TESTING)
 {
     my $mlen = $num_zeros + $buf.elems;
     my $msg  = CArray[int8].new;
@@ -217,18 +207,6 @@ sub prepend_zeros($buf!, Int $num_zeros!)
     return $msg;
 }
 
-sub crypto_box (Blob $buf!, CArray[int8] $nonce!, CArray[int8] $pk!, CArray[int8] $sk!) is export
-{
-    my longlong $mlen = CRYPTO_BOX_ZEROBYTES + $buf.elems;
-    my $data = CArray[int8].new;
-    $data[$mlen - 1] = 0;       #alloc
-    my $msg  = prepend_zeros($buf, CRYPTO_BOX_ZEROBYTES);
-    my $ret = crypto_box_int($data, $msg, $mlen, $nonce, $pk, $sk);
-    if ($ret != 0) {
-        die "crypto_box, bad return code: $ret";
-    }
-    return $data;
-}
 
 #      unsigned char k[crypto_box_BEFORENMBYTES];
 #      const unsigned char pk[crypto_box_PUBLICKEYBYTES];
@@ -236,7 +214,7 @@ sub crypto_box (Blob $buf!, CArray[int8] $nonce!, CArray[int8] $pk!, CArray[int8
 
 #      crypto_box_beforenm(k,pk,sk);#int crypto_box_beforenm(u8 *k,const u8 *y,const u8 *x);
 
-sub crypto_box_beforenm_int (CArray[int8], CArray[int8], CArray[int8]) is symbol('crypto_box_beforenm') is native($tweetnacl) is export returns int32 { * };
+sub crypto_box_beforenm_int (CArray[int8], CArray[int8], CArray[int8]) is symbol('crypto_box_beforenm') is native(TWEETNACL) is export returns int32 { * };
 
 # const unsigned char k[crypto_box_BEFORENMBYTES];
 # const unsigned char n[crypto_box_NONCEBYTES];
@@ -245,7 +223,7 @@ sub crypto_box_beforenm_int (CArray[int8], CArray[int8], CArray[int8]) is symbol
 
 # crypto_box_open_afternm(m,c,clen,n,k);
 
-sub crypto_box_afternm_int (CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8]) is symbol('crypto_box_afternm') is native($tweetnacl) is export returns int32 { * };
+sub crypto_box_afternm_int (CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8]) is symbol('crypto_box_afternm') is native(TWEETNACL) is export returns int32 { * };
 
 class Ciphertext
 {
@@ -305,35 +283,6 @@ class CryptoBox is export
 }
 
 
-#     const unsigned char pk[crypto_box_PUBLICKEYBYTES];
-#     const unsigned char sk[crypto_box_SECRETKEYBYTES];
-#     const unsigned char n[crypto_box_NONCEBYTES];
-#     const unsigned char c[...]; unsigned long long clen;
-#     unsigned char m[...];
-#     crypto_box_open(m,c,clen,n,pk,sk);
-
-sub crypto_box_open_int(CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8], CArray[int8]) is symbol('crypto_box_open') is native($tweetnacl) is export returns int32 { * }
-
-
-sub crypto_box_open(CArray[int8] $c!, CArray[int8] $nonce!, CArray[int8] $pk!, CArray[int8] $sk!) is export
-{
-    my $msg  = CArray[int8].new;
-    my $clen = $c.elems;
-    $msg[$clen - 1] = 0;        #alloc
-    my $i;
-    loop ($i=0; $i < CRYPTO_BOX_BOXZEROBYTES ; $i++)
-    {
-        if ($c[$i] != 0) {
-            die "crypto_box_open, bad ciphertext";
-        }
-    }
-    my $ret = crypto_box_open_int($msg, $c, $clen, $nonce, $pk, $sk);
-    if ($ret != 0) {
-        die "crypto_box_open, bad return code: $ret";
-
-    }
-    return remove_leading_elems(Buf, $msg, CRYPTO_BOX_ZEROBYTES);
-}
 
 # The crypto_box_open_afternm function is callable as follows:
 
@@ -346,7 +295,7 @@ sub crypto_box_open(CArray[int8] $c!, CArray[int8] $nonce!, CArray[int8] $pk!, C
 
 #    crypto_box_open_afternm(m,c,clen,n,k)
 
-sub crypto_box_open_afternm_int(CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8]) is symbol('crypto_box_open_afternm') is native($tweetnacl) is export returns int32 { * }
+sub crypto_box_open_afternm_int(CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8]) is symbol('crypto_box_open_afternm') is native(TWEETNACL) is export returns int32 { * }
 
 class CryptoBoxOpen is export
 {
@@ -384,4 +333,63 @@ class CryptoBoxOpen is export
     {
         return self.decrypt($ciph.zdata, $ciph.nonce);
     }
+}
+
+
+# ----------------------------------------------------------------------
+# internal subroutines for test, do not use
+# ----------------------------------------------------------------------
+
+
+# const unsigned char pk[crypto_box_PUBLICKEYBYTES];
+#     const unsigned char sk[crypto_box_SECRETKEYBYTES];
+#     const unsigned char n[crypto_box_NONCEBYTES];
+#     const unsigned char m[...]; unsigned long long mlen;
+#     unsigned char c[...];
+#
+#     crypto_box(c,m,mlen,n,pk,sk);
+
+sub crypto_box_int (CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8], CArray[int8]) is symbol('crypto_box') is native(TWEETNACL) is export returns int32 { * };
+
+sub crypto_box (Blob $buf!, CArray[int8] $nonce!, CArray[int8] $pk!, CArray[int8] $sk!) is export
+{
+    my longlong $mlen = CRYPTO_BOX_ZEROBYTES + $buf.elems;
+    my $data = CArray[int8].new;
+    $data[$mlen - 1] = 0;       #alloc
+    my $msg  = prepend_zeros($buf, CRYPTO_BOX_ZEROBYTES);
+    my $ret = crypto_box_int($data, $msg, $mlen, $nonce, $pk, $sk);
+    if ($ret != 0) {
+        die "crypto_box, bad return code: $ret";
+    }
+    return $data;
+}
+
+#     const unsigned char pk[crypto_box_PUBLICKEYBYTES];
+#     const unsigned char sk[crypto_box_SECRETKEYBYTES];
+#     const unsigned char n[crypto_box_NONCEBYTES];
+#     const unsigned char c[...]; unsigned long long clen;
+#     unsigned char m[...];
+#     crypto_box_open(m,c,clen,n,pk,sk);
+
+sub crypto_box_open_int(CArray[int8], CArray[int8], longlong, CArray[int8], CArray[int8], CArray[int8]) is symbol('crypto_box_open') is native(TWEETNACL) is export returns int32 { * }
+
+
+sub crypto_box_open(CArray[int8] $c!, CArray[int8] $nonce!, CArray[int8] $pk!, CArray[int8] $sk!) is export
+{
+    my $msg  = CArray[int8].new;
+    my $clen = $c.elems;
+    $msg[$clen - 1] = 0;        #alloc
+    my $i;
+    loop ($i=0; $i < CRYPTO_BOX_BOXZEROBYTES ; $i++)
+    {
+        if ($c[$i] != 0) {
+            die "crypto_box_open, bad ciphertext";
+        }
+    }
+    my $ret = crypto_box_open_int($msg, $c, $clen, $nonce, $pk, $sk);
+    if ($ret != 0) {
+        die "crypto_box_open, bad return code: $ret";
+
+    }
+    return remove_leading_elems(Buf, $msg, CRYPTO_BOX_ZEROBYTES);
 }
