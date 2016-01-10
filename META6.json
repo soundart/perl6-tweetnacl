@@ -7,8 +7,8 @@
     ],
     "build-depends" : [ ],
     "provides" : {
-        "TweetNacl" : "lib/TweetNacl.pm6",
-        "TweetNacl::Constants" : "lib/TweetNacl/Constants.pm6"
+        "Crypt::TweetNacl" : "lib/Crypt/TweetNacl.pm6",
+        "Crypt::TweetNacl::Constants" : "lib/Crypt/TweetNacl/Constants.pm6"
     },
     "depends" : [
         "LibraryMake"

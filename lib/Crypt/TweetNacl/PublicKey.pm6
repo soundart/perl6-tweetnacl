@@ -3,7 +3,7 @@ use NativeCall;
 use LibraryMake;
 use TweetNacl::Constants;
 
-unit module TweetNacl;
+unit module Crypt::TweetNacl;
 
 =begin pod
 =head1 NAME
@@ -109,7 +109,7 @@ unit module TweetNacl;
 =head1 SEE ALSO
 
    - https://nacl.cr.yp.to/box.html
-   - http://tweetnacl.cr.yp.to/tweetnacl-20131229.pdf.
+   - https://tweetnacl.cr.yp.to/tweetnacl-20131229.pdf
 
 =head1 AUTHOR
 

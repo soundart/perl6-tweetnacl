@@ -1,7 +1,7 @@
 use v6;
 use Test;
-use TweetNacl;
-use TweetNacl :TESTING;
+use Crypt::TweetNacl;
+use Crypt::TweetNacl :TESTING;
 plan 1;
 
 my $aaa = Buf.new(0, 1, 2);

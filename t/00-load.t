@@ -2,6 +2,6 @@ use v6;
 use Test;
 
 plan 1;
-use TweetNacl;
+use Crypt::TweetNacl;
 
-ok 1, 'TweetNacl is loaded successfully';
+ok 1, 'Crypt::TweetNacl is loaded successfully';

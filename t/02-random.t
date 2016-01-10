@@ -1,6 +1,6 @@
 use v6;
 use Test;
-use TweetNacl;
+use Crypt::TweetNacl;
 plan 1;
 
 my $a = randombytes(42);
