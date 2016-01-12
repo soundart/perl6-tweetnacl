@@ -162,7 +162,7 @@ class KeyPair is export
         $!secret := CArray[int8].new;
         $!public := CArray[int8].new;
         $!secret[CRYPTO_BOX_SECRETKEYBYTES - 1] = 0; # extend the array to 32 items
-        $!public[CRYPTO_BOX_SECRETKEYBYTES - 1] = 0; # extend the array to 32 items
+        $!public[CRYPTO_BOX_PUBLICKEYBYTES - 1] = 0; # extend the array to 32 items
         my $ret = crypto_box_keypair_int($!public,$!secret);
         if ($ret != 0) {
             die "crypto_box_keypair_int, bad return code: $ret";
