@@ -16,3 +16,4 @@ constant CRYPTO_SECRETBOX_ZEROBYTES  is export = 32;
 constant CRYPTO_SECRETBOX_BOXZEROBYTES  is export = 16;
 constant CRYPTO_SIGN_PUBLICKEYBYTES is export = 32;
 constant CRYPTO_SIGN_SECRETKEYBYTES  is export = 64;
+constant CRYPTO_SIGN_BYTES  is export = 64;

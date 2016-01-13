@@ -97,3 +97,57 @@ class KeyPair is export
         }
     }
 }
+
+
+
+
+# C NaCl also provides a crypto_sign function callable as follows:
+
+#      #include "crypto_sign.h"
+
+#      const unsigned char sk[crypto_sign_SECRETKEYBYTES];
+#      const unsigned char m[...]; unsigned long long mlen;
+#      unsigned char sm[...]; unsigned long long smlen;
+
+#      crypto_sign(sm,&smlen,m,mlen,sk);
+
+# The crypto_sign function signs a message m[0], ..., m[mlen-1] using
+# the signer's secret key sk[0], sk[1], ...,
+# sk[crypto_sign_SECRETKEYBYTES-1], puts the length of the signed
+# message into smlen and puts the signed message into sm[0], sm[1],
+# ..., sm[smlen-1]. It then returns 0.
+# The maximum possible length smlen is mlen+crypto_sign_BYTES. The
+# caller must allocate at least mlen+crypto_sign_BYTES bytes for sm.
+
+#my $len = CArray[ulonglong].new; $len[0] = 0;
+sub crypto_sign_int(CArray[int8], CArray[ulonglong], CArray[int8], ulonglong, CArray[int8]) is symbol('crypto_sign') is native(TWEETNACL) returns int { * }
+
+
+class CryptoSign is export
+{
+    has $.signature;
+    submethod BUILD(Blob :$buf!, CArray[int8] :$sk!)
+    {
+        my $mlen = $buf.elems;
+        $!signature = CArray[int8].new;
+        my $msg = CArray[int8].new;
+        my $tmp = CArray[int8].new;
+        $tmp[CRYPTO_SIGN_BYTES + $mlen - 1] = 0;
+        my $i;
+        loop ($i=0; $i < $buf.elems; ++$i)
+        {
+            $msg[$i] = $buf[$i];
+        }
+        my $slen = CArray[ulonglong].new;
+        $slen[0] = 0; # alloc
+        my $ret = crypto_sign_int($tmp, $slen, $msg, $mlen, $sk);
+        if ($ret != 0) {
+            die "crypto_sign_int, bad return code: $ret";
+        }
+        $!signature[$slen[0] - 1] = 0;
+        loop ($i=0; $i < $slen[0]; ++$i)
+        {
+             $!signature[$i] = $tmp[$i];
+        }
+    }
+}
