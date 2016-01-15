@@ -9,6 +9,10 @@ TweetNacl - pulic key crypto lib
 SYNOPSIS
 ========
 
+    # ----------------------------------------------------------------------
+    # public key encryption
+    # ----------------------------------------------------------------------
+
     use Crypt::TweetNacl::PublicKey;
 
     # create keys
@@ -26,6 +30,29 @@ SYNOPSIS
     my $cbo = CryptoBoxOpen.new(pk => $bob.public , sk => $alice.secret);
     my $rmsg = $cbo.decrypt($data);
     say $rmsg.decode('UTF-8')
+
+
+
+    # ----------------------------------------------------------------------
+    # public key signatures
+    # ----------------------------------------------------------------------
+
+    use Crypt::TweetNacl::Sign;
+
+    # create key
+    my $keypair = KeyPair.new;
+    my $msg = 'Hello World'.encode('UTF-8');
+
+    # sign
+    my $cs = CryptoSign.new(buf => $msg, sk => $keypair.secret);
+    say $cs.signature
+
+
+    # verify, throws if message was corrupted
+    my $cso = CryptoSignOpen.new(buf => $cs.signature, pk => $keypair.public);
+    say $cso.message.decode('UTF-8') # 'Hello World'
+
+
 
 
 INSTALL
