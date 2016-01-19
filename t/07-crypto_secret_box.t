@@ -4,7 +4,7 @@ use Crypt::TweetNacl::SecretKey;
 use Crypt::TweetNacl::Constants;
 use NativeCall;
 
-plan 6;
+plan 7;
 
 sub make_carray(@l)
 {
@@ -134,3 +134,5 @@ is-deeply $data1, $exp, "CryptoSecretBox.encrypt ";
 my $csbo = CryptoSecretBoxOpen.new(sk => $firstkey);
 my $data2 = $csbo.decrypt($exp, $nonce);
 is-deeply $data2, $msg, "CryptoSecretBoxOpen.decrypt ";
+
+is CRYPTO_SECRETBOX_NONCEBYTES, CRYPTO_BOX_NONCEBYTES, "check length of nonce";
