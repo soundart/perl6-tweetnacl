@@ -134,6 +134,14 @@ sub crypto_secretbox_int (CArray[int8], CArray[int8], ulonglong, CArray[int8], C
 sub crypto_secretbox_open_int (CArray[int8], CArray[int8], ulonglong, CArray[int8], CArray[int8]) is symbol('crypto_secretbox_open') is native(TWEETNACL) is export returns int32 { * };
 
 
+class Key is export
+{
+    has $.secret;
+    submethod BUILD()
+    {
+        $!secret = randombytes(CRYPTO_SECRETBOX_KEYBYTES);
+    }
+}
 
 class CryptoSecretBox is export
 {
