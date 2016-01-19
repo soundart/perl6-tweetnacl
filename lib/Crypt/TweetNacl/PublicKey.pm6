@@ -2,6 +2,7 @@ use v6;
 use NativeCall;
 use LibraryMake;
 use Crypt::TweetNacl::Constants;
+use Crypt::TweetNacl::Basics;
 
 unit module Crypt::TweetNacl::PublicKey;
 
@@ -133,21 +134,6 @@ DOC INIT {
         pod2text($=pod);
 }
 
-sub remove_leading_elems($return_type!, $buf!, Int $num_elems) is export(:TESTING)
-{
-    my $data := $return_type.new;
-    my $dlen = $buf.elems - $num_elems;
-    $data[$dlen - 1] = 0;
-    my $i = 0;
-    loop ($i = 0; $i < $dlen; $i++)
-    {
-        $data[$i] = $buf[$i + $num_elems];
-    }
-    return $data;
-}
-
-
-
 # https://nacl.cr.yp.to/box.html
 # int crypto_box_keypair(u8 *y,u8 *x);
 
@@ -173,39 +159,6 @@ class KeyPair is export
 
 # void randombytes(unsigned char *x,unsigned long long xlen)
 
-# todo check signedness of xlen
-sub randombytes_int(CArray[int8], ulonglong) is symbol('randombytes') is native(TWEETNACL) is export { * }
-
-sub randombytes(int $xlen!) is export
-{
-    my $data = CArray[int8].new;
-    $data[$xlen - 1] = 0;
-    randombytes_int($data, $xlen);
-    return $data;
-}
-
-sub nonce() is export
-{
-    return randombytes(CRYPTO_BOX_NONCEBYTES);
-}
-
-
-sub prepend_zeros($buf!, Int $num_zeros!) is export(:TESTING)
-{
-    my $mlen = $num_zeros + $buf.elems;
-    my $msg  = CArray[int8].new;
-    $msg[$mlen - 1] = 0;        #alloc
-    my Int $i;
-    loop ($i=0; $i < $num_zeros ; $i++)
-    {
-        $msg[$i] = 0;
-    }
-    loop ($i=0; $i < $buf.elems; ++$i)
-    {
-        $msg[$i+$num_zeros] = $buf[$i];
-    }
-    return $msg;
-}
 
 
 #      unsigned char k[crypto_box_BEFORENMBYTES];
@@ -231,7 +184,7 @@ class Ciphertext
     has $.nonce;
     has $!dlen;
 
-    submethod BUILD(CArray[int8] :$zdata!, CArray[int8] :$nonce!)
+    submethod BUILD(CArray :$zdata!, CArray :$nonce!)
     {
         $!data = remove_leading_elems(CArray[int8], $zdata, CRYPTO_BOX_BOXZEROBYTES);
         $!dlen = $!data.elems;
@@ -250,7 +203,7 @@ class Ciphertext
 class CryptoBox is export
 {
     has $!key;
-    submethod BUILD(CArray[int8] :$pk!, CArray[int8] :$sk!)
+    submethod BUILD(CArray :$pk!, CArray :$sk!)
     {
         $!key := CArray[int8].new;
         $!key[CRYPTO_BOX_BEFORENMBYTES - 1] = 0; # extend the array to 32 items
@@ -260,7 +213,7 @@ class CryptoBox is export
         }
     }
 
-    multi method encrypt(Blob $buf!, CArray[int8] $nonce!)
+    multi method encrypt(Blob $buf!, CArray $nonce!)
     {
         my ulonglong $mlen = CRYPTO_BOX_ZEROBYTES + $buf.elems;
         my $data = CArray[int8].new;
@@ -300,7 +253,7 @@ sub crypto_box_open_afternm_int(CArray[int8], CArray[int8], ulonglong, CArray[in
 class CryptoBoxOpen is export
 {
     has $!key;
-    submethod BUILD(CArray[int8] :$pk!, CArray[int8] :$sk!)
+    submethod BUILD(CArray :$pk!, CArray :$sk!)
     {
         $!key := CArray[int8].new;
         $!key[CRYPTO_BOX_BEFORENMBYTES - 1] = 0; # extend the array to 32 items
@@ -309,7 +262,7 @@ class CryptoBoxOpen is export
             die "crypto_box_beforenm_int, bad return code: $ret";
         }
     }
-    multi method decrypt(CArray[int8] $c!, CArray[int8] $nonce!)
+    multi method decrypt(CArray $c!, CArray $nonce!)
     {
         my $msg  = CArray[int8].new;
         my $clen = $c.elems;
@@ -351,7 +304,7 @@ class CryptoBoxOpen is export
 
 sub crypto_box_int (CArray[int8], CArray[int8], ulonglong, CArray[int8], CArray[int8], CArray[int8]) is symbol('crypto_box') is native(TWEETNACL) is export returns int32 { * };
 
-sub crypto_box (Blob $buf!, CArray[int8] $nonce!, CArray[int8] $pk!, CArray[int8] $sk!) is export
+sub crypto_box (Blob $buf!, CArray $nonce!, CArray $pk!, CArray $sk!) is export
 {
     my ulonglong $mlen = CRYPTO_BOX_ZEROBYTES + $buf.elems;
     my $data = CArray[int8].new;
@@ -374,7 +327,7 @@ sub crypto_box (Blob $buf!, CArray[int8] $nonce!, CArray[int8] $pk!, CArray[int8
 sub crypto_box_open_int(CArray[int8], CArray[int8], ulonglong, CArray[int8], CArray[int8], CArray[int8]) is symbol('crypto_box_open') is native(TWEETNACL) is export returns int32 { * }
 
 
-sub crypto_box_open(CArray[int8] $c!, CArray[int8] $nonce!, CArray[int8] $pk!, CArray[int8] $sk!) is export
+sub crypto_box_open(CArray $c!, CArray $nonce!, CArray $pk!, CArray $sk!) is export
 {
     my $msg  = CArray[int8].new;
     my $clen = $c.elems;

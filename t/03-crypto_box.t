@@ -1,15 +1,15 @@
 use v6;
 use Test;
 use Crypt::TweetNacl::PublicKey;
+use Crypt::TweetNacl::Basics;
+use NativeCall;
 
 plan 8;
-
-
 my $alice = KeyPair.new;
 my $bob = KeyPair.new;
 my $msg = 'Hello World'.encode('UTF-8');
 
-my $nonce = nonce();
+my CArray[int8] $nonce = nonce();
 my $data1 = crypto_box($msg, $nonce, $alice.public , $bob.secret);
 my $rmsg1 = crypto_box_open($data1, $nonce, $bob.public , $alice.secret);
 is $rmsg1.decode('UTF-8'), $msg , "Roundtrip encrypt->decrypt";

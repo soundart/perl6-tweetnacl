@@ -24,6 +24,7 @@ typedef i64 gf[16];
 #ifdef __cplusplus
 extern "C" {
 #endif
+// public key encryption
 int crypto_box_keypair(u8 *y,u8 *x);
 int crypto_box_afternm(u8 *c,const u8 *m,u64 d,const u8 *n,const u8 *k);
 int crypto_box_open_afternm(u8 *m,const u8 *c,u64 d,const u8 *n,const u8 *k);
@@ -32,6 +33,13 @@ int crypto_box_open(u8 *m,const u8 *c,u64 d,const u8 *n,const u8 *y,const u8 *x)
 int crypto_box_beforenm(u8 *k,const u8 *y,const u8 *x);
 int crypto_secretbox(u8 *c,const u8 *m,u64 d,const u8 *n,const u8 *k);
 int crypto_secretbox_open(u8 *m,const u8 *c,u64 d,const u8 *n,const u8 *k);
+// public key signature
+int crypto_sign_keypair(u8 *pk, u8 *sk)
+int crypto_sign(u8 *sm,u64 *smlen,const u8 *m,u64 n,const u8 *sk)
+int crypto_sign_open(u8 *m,u64 *mlen,const u8 *sm,u64 n,const u8 *pk)
+// secret key encryption
+int crypto_secretbox(u8 *c,const u8 *m,u64 d,const u8 *n,const u8 *k)
+int crypto_secretbox_open(u8 *m,const u8 *c,u64 d,const u8 *n,const u8 *k)
 #ifdef __cplusplus
 }
 #endif
