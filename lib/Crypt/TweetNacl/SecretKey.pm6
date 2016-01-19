@@ -2,6 +2,7 @@ use v6;
 use NativeCall;
 use LibraryMake;
 use Crypt::TweetNacl::Constants;
+use Crypt::TweetNacl::Basics;
 
 unit module Crypt::TweetNacl::SecretKey;
 
@@ -131,3 +132,38 @@ sub crypto_secretbox_int (CArray[int8], CArray[int8], ulonglong, CArray[int8], C
 # of the plaintext m are all 0.
 
 sub crypto_secretbox_open_int (CArray[int8], CArray[int8], ulonglong, CArray[int8], CArray[int8]) is symbol('crypto_secretbox_open') is native(TWEETNACL) is export returns int32 { * };
+
+
+
+class CryptoSecretBox is export
+{
+    has $!key;
+    submethod BUILD(CArray :$sk!)
+    {
+        $!key = $sk;
+        if ($!key.elems != CRYPTO_SECRETBOX_KEYBYTES) {
+            die "CryptoSecretBox, bad secret key lenght";
+        }
+    }
+
+    multi method encrypt(Blob $buf!, CArray $nonce!)
+    {
+        my ulonglong $mlen = CRYPTO_SECRETBOX_ZEROBYTES + $buf.elems;
+        my $data = CArray[int8].new;
+        $data[$mlen - 1] = 0;   #alloc
+        my $msg  = prepend_zeros($buf, CRYPTO_SECRETBOX_ZEROBYTES);
+        my $ret = crypto_secretbox_int($data, $msg, $mlen, $nonce, $!key);
+        if ($ret != 0) {
+            die "crypto_secretbox_int, bad return code: $ret";
+        }
+        return $data;
+    }
+
+    multi method encrypt(Blob $buf!)
+    {
+        my $nonce = nonce();
+        my $data  = self.encrypt($buf, $nonce);
+        my $ciph  = Ciphertext.new(zdata => $data, nonce => $nonce);
+        return $ciph;
+    }
+}
