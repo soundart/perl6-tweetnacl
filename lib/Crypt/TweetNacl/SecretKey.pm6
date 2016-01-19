@@ -167,3 +167,40 @@ class CryptoSecretBox is export
         return $ciph;
     }
 }
+
+class CryptoSecretBoxOpen is export
+{
+    has $!key;
+    submethod BUILD(CArray :$sk!)
+    {
+        $!key = $sk;
+        if ($!key.elems != CRYPTO_SECRETBOX_KEYBYTES) {
+            die "CryptoSecretBoxOpen, bad secret key lenght";
+        }
+    }
+
+    multi method decrypt(CArray $c!, CArray $nonce!)
+    {
+        my $msg  = CArray[int8].new;
+        my $clen = $c.elems;
+        $msg[$clen - 1] = 0;    #alloc
+        my $i;
+        loop ($i=0; $i < CRYPTO_SECRETBOX_BOXZEROBYTES ; $i++)
+        {
+            if ($c[$i] != 0) {
+                die "crypto_box_open, bad ciphertext";
+            }
+        }
+        my $ret = crypto_secretbox_open_int($msg, $c, $clen, $nonce, $!key);
+        if ($ret != 0) {
+            die "crypto_secretbox_open_int, bad return code: $ret";
+
+        }
+        return remove_leading_elems(Buf, $msg, CRYPTO_SECRETBOX_ZEROBYTES);
+    }
+
+    multi method decrypt(Ciphertext $ciph!)
+    {
+        return self.decrypt($ciph.zdata, $ciph.nonce);
+    }
+}
