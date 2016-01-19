@@ -8,7 +8,10 @@
     "build-depends" : [ ],
     "provides" : {
         "Crypt::TweetNacl::PublicKey" : "lib/Crypt/TweetNacl/PublicKey.pm6",
+        "Crypt::TweetNacl::SecretKey" : "lib/Crypt/TweetNacl/SecretKey.pm6",
         "Crypt::TweetNacl::Constants" : "lib/Crypt/TweetNacl/Constants.pm6"
+        "Crypt::TweetNacl::Basics"    : "lib/Crypt/TweetNacl/Basics.pm6"
+        "Crypt::TweetNacl::Sign  "    : "lib/Crypt/TweetNacl/Sign.pm6"
     },
     "depends" : [
         "LibraryMake"
