@@ -4,7 +4,7 @@ use Crypt::TweetNacl::SecretKey;
 use Crypt::TweetNacl::Constants;
 use NativeCall;
 
-plan 2;
+plan 4;
 
 sub make_carray(@l)
 {
@@ -93,3 +93,12 @@ my Int $ret;
 $ret = crypto_secretbox_int($c,$m,163,$nonce,$firstkey);
 is $ret,0, "success return code";
 is-deeply $c, $exp, "encrypt";
+
+
+
+my $mopen := CArray[int8].new;
+$mopen[163-1] = 0;
+
+$ret = crypto_secretbox_open_int($mopen,$exp,163,$nonce,$firstkey);
+is $ret,0, "success return code";;
+is-deeply $mopen, $m, "decrypt";

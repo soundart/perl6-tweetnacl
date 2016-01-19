@@ -129,3 +129,5 @@ sub crypto_secretbox_int (CArray[int8], CArray[int8], ulonglong, CArray[int8], C
 # ciphertext c are all 0. The crypto_secretbox_open function ensures
 # (in case of success) that the first crypto_secretbox_ZEROBYTES bytes
 # of the plaintext m are all 0.
+
+sub crypto_secretbox_open_int (CArray[int8], CArray[int8], ulonglong, CArray[int8], CArray[int8]) is symbol('crypto_secretbox_open') is native(TWEETNACL) is export returns int32 { * };
