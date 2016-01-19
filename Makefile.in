@@ -9,7 +9,7 @@ clean:
 	    %LD% %LDSHARED% %LDFLAGS% %LIBS% %LDOUT%%DESTDIR%/resources/libraries/%tweetnacl% $^
 
 tweetnacl%O%: tweetnacl/src/tweetnacl.c tweetnacl/src/tweetnacl_base.h
-	    %CC% -c %CCSHARED% %CCFLAGS% %CCOUT% $@ $^
+	    %CC% -c %CCSHARED% %CCFLAGS% %CCOUT% $@ $<
 
 devurandom%O%: tweetnacl/contrib/randombytes/devurandom.c
 	    %CC% -c %CCSHARED% %CCFLAGS% %CCOUT% $@ $^
