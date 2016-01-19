@@ -52,6 +52,27 @@ SYNOPSIS
     my $cso = CryptoSignOpen.new(buf => $cs.signature, pk => $keypair.public);
     say $cso.message.decode('UTF-8') # 'Hello World'
 
+    # ----------------------------------------------------------------------
+    # secret key encryption
+    # ----------------------------------------------------------------------
+
+    use Crypt::TweetNacl::SecretKey;
+
+    # create key
+    my alice = Key.new;
+
+    # create Buf to encrypt
+    my $msg = 'Hello World'.encode('UTF-8');
+
+    # encrypt
+    my $csb = CryptoSecretBox.new(sk => $alice.secret);
+    my $data = $csb.encrypt($msg);
+
+    # decrypt
+    my $csbo = CryptoSecretBoxOpen.new(sk => $alice.secret);
+    my $rmsg = $csbo.decrypt($data);
+    say $rmsg.decode('UTF-8') # 'Hello World'
+
 
 
 
