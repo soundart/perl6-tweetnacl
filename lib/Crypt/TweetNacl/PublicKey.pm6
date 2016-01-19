@@ -178,27 +178,6 @@ sub crypto_box_beforenm_int (CArray[int8], CArray[int8], CArray[int8]) is symbol
 
 sub crypto_box_afternm_int (CArray[int8], CArray[int8], ulonglong, CArray[int8], CArray[int8]) is symbol('crypto_box_afternm') is native(TWEETNACL) is export returns int32 { * };
 
-class Ciphertext
-{
-    has $.data;
-    has $.nonce;
-    has $!dlen;
-
-    submethod BUILD(CArray :$zdata!, CArray :$nonce!)
-    {
-        $!data = remove_leading_elems(CArray[int8], $zdata, CRYPTO_BOX_BOXZEROBYTES);
-        $!dlen = $!data.elems;
-        $!nonce = $nonce;
-    }
-
-    # return data with prepend zeros
-    method zdata()
-    {
-        my $zdata = prepend_zeros($!data, CRYPTO_BOX_BOXZEROBYTES);
-        return $zdata;
-
-    }
-}
 
 class CryptoBox is export
 {

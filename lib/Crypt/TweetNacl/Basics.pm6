@@ -57,3 +57,25 @@ sub prepend_zeros($buf!, Int $num_zeros!) is export
     }
     return $msg;
 }
+
+class Ciphertext is export
+{
+    has $.data;
+    has $.nonce;
+    has $!dlen;
+
+    submethod BUILD(CArray :$zdata!, CArray :$nonce!)
+    {
+        $!data = remove_leading_elems(CArray[int8], $zdata, CRYPTO_BOX_BOXZEROBYTES);
+        $!dlen = $!data.elems;
+        $!nonce = $nonce;
+    }
+
+    # return data with prepend zeros
+    method zdata()
+    {
+        my $zdata = prepend_zeros($!data, CRYPTO_BOX_BOXZEROBYTES);
+        return $zdata;
+
+    }
+}
