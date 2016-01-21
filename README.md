@@ -59,7 +59,7 @@ SYNOPSIS
     use Crypt::TweetNacl::SecretKey;
 
     # create key
-    my alice = Key.new;
+    my $alice = Key.new;
 
     # create Buf to encrypt
     my $msg = 'Hello World'.encode('UTF-8');
