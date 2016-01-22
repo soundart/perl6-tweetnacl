@@ -1,5 +1,5 @@
 {
-    "name" : "TweetNacl",
+    "name" : "Crypt::TweetNacl",
     "source-url" : "git://github.com/soundart/perl6-tweetnacl.git",
     "perl" : "v6.c",
     "resources" : [
@@ -16,7 +16,7 @@
     "depends" : [
         "LibraryMake"
     ],
-    "description" : "tweetnacl p6 bindings",
+    "description" : "tweetnacl p6 bindings - public/secret key encryption and signatures",
     "test-depends" : [ ],
     "version" : "0.0.2",
     "license"       : "Public Domain",
