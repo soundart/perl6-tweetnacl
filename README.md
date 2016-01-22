@@ -92,7 +92,7 @@ DESCRIPTION
 
 For details see
 - https://nacl.cr.yp.to/box.html
-- http://tweetnacl.cr.yp.to/tweetnacl-20131229.pdf.
+- http://tweetnacl.cr.yp.to/tweetnacl-20131229.pdf
 
 This is my first perl6 attempt. Feedback very much appreciated.
 
