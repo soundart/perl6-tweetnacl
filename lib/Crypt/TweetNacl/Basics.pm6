@@ -1,6 +1,6 @@
 use v6;
 use NativeCall;
-use LibraryMake;
+use Crypt::Random;
 use Crypt::TweetNacl::Constants;
 
 unit module Crypt::TweetNacl::Basics;
@@ -22,22 +22,9 @@ sub remove_leading_elems($return_type!, $buf!, Int $num_elems) is export
 
 
 
-# void randombytes(unsigned char *x,unsigned long long xlen)
-
-# todo check signedness of xlen
-sub randombytes_int(CArray[int8], ulonglong) is symbol('randombytes') is native(TWEETNACL) is export { * }
-
-sub randombytes(int $xlen!) is export
-{
-    my $data = CArray[int8].new;
-    $data[$xlen - 1] = 0;
-    randombytes_int($data, $xlen);
-    return $data;
-}
-
 sub nonce() is export
 {
-    return randombytes(CRYPTO_BOX_NONCEBYTES);
+    return crypt_random_buf(CRYPTO_BOX_NONCEBYTES);
 }
 
 
