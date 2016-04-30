@@ -1,5 +1,4 @@
 use v6;
-use NativeCall;
 use Crypt::Random;
 use Crypt::TweetNacl::Constants;
 
