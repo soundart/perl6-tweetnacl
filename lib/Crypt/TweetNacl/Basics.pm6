@@ -20,11 +20,17 @@ sub remove_leading_elems($return_type!, $buf!, Int $num_elems) is export
 }
 
 
+sub buf_to_carray(Buf $buf) is export
+{
+    my $carray = CArray[int8].new;
+    $carray[$_] = $buf[$_] for ^$buf.elems;
+    return $carray;
+}
 
 
 sub nonce() is export
 {
-    return crypt_random_buf(CRYPTO_BOX_NONCEBYTES);
+    return buf_to_carray(crypt_random_buf(CRYPTO_BOX_NONCEBYTES));
 }
 
 

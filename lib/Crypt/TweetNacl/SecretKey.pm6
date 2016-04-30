@@ -155,7 +155,7 @@ class Key is export
     has $.secret;
     submethod BUILD()
     {
-        $!secret = crypt_random_buf(CRYPTO_SECRETBOX_KEYBYTES);
+        $!secret = buf_to_carray(crypt_random_buf(CRYPTO_SECRETBOX_KEYBYTES));
     }
 }
 
