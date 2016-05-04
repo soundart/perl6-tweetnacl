@@ -14,7 +14,7 @@
         "Crypt::TweetNacl::Sign"      : "lib/Crypt/TweetNacl/Sign.pm6"
     },
     "depends" : [
-        "LibraryMake"
+        "LibraryMake", "Crypt::Random"
     ],
     "description" : "tweetnacl p6 bindings - public/secret key encryption and signatures",
     "test-depends" : [ ],

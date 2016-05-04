@@ -1,5 +1,4 @@
-
-[![Build Status](https://travis-ci.org/soundart/perl6-tweetnacl.svg?branch=master)](https://travis-ci.org/soundart/perl6-tweetnacl)
+[![Build Status](https://travis-ci.org/skinkade/perl6-tweetnacl.svg?branch=master)](https://travis-ci.org/skinkade/perl6-tweetnacl)
 
 NAME
 ====

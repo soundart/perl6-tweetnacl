@@ -1,6 +1,6 @@
 use v6;
 use NativeCall;
-use LibraryMake;
+use Crypt::Random;
 use Crypt::TweetNacl::Constants;
 use Crypt::TweetNacl::Basics;
 
@@ -155,7 +155,7 @@ class Key is export
     has $.secret;
     submethod BUILD()
     {
-        $!secret = randombytes(CRYPTO_SECRETBOX_KEYBYTES);
+        $!secret = buf_to_carray(crypt_random_buf(CRYPTO_SECRETBOX_KEYBYTES));
     }
 }
 

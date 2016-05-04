@@ -1,6 +1,5 @@
 use v6;
 use NativeCall;
-use LibraryMake;
 use Crypt::TweetNacl::Constants;
 use Crypt::TweetNacl::Basics;
 
@@ -156,8 +155,6 @@ class KeyPair is export
     }
 }
 #https://nacl.cr.yp.to/box.html
-
-# void randombytes(unsigned char *x,unsigned long long xlen)
 
 
 
