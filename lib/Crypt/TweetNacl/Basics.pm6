@@ -27,7 +27,7 @@ class CryptoHash is export {
     has $.bytes;
     submethod BUILD(:$!buf) {
         my $tmp = CArray[uint8].new;
-        $tmp[63] = 0;
+        $tmp[CRYPTO_HASH_BYTES - 1] = 0;
         my $mlen = $!buf.elems;
         my $msg = CArray[uint8].new($mlen);
         $msg[$_] = $!buf[$_] for 0..$mlen-1;
