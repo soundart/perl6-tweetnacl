@@ -78,7 +78,7 @@ DOC INIT {
 
 #     crypto_sign_keypair(pk,sk);
 
-sub crypto_sign_keypair_int(CArray[int8], CArray[int8]) is symbol('crypto_sign_keypair') is native(TWEETNACL) returns int { * }
+sub crypto_sign_keypair_int(CArray[uint8], CArray[uint8]) is symbol('crypto_sign_keypair') is native(TWEETNACL) returns int { * }
 
 class KeyPair is export
 {
@@ -86,8 +86,8 @@ class KeyPair is export
     has $.public;
     submethod BUILD()
     {
-        $!secret := CArray[int8].new;
-        $!public := CArray[int8].new;
+        $!secret := CArray[uint8].new;
+        $!public := CArray[uint8].new;
         $!secret[CRYPTO_SIGN_SECRETKEYBYTES - 1] = 0; # extend the array to 32 items
         $!public[CRYPTO_SIGN_PUBLICKEYBYTES - 1] = 0; # extend the array to 32 items
         my $ret = crypto_sign_keypair_int($!public,$!secret);
@@ -119,19 +119,19 @@ class KeyPair is export
 # caller must allocate at least mlen+crypto_sign_BYTES bytes for sm.
 
 #my $len = CArray[ulonglong].new; $len[0] = 0;
-sub crypto_sign_int(CArray[int8], CArray[ulonglong], CArray[int8], ulonglong, CArray[int8]) is symbol('crypto_sign') is native(TWEETNACL) returns int { * }
-sub crypto_sign_open_int(CArray[int8], CArray[ulonglong], CArray[int8], ulonglong, CArray[int8]) is symbol('crypto_sign_open') is native(TWEETNACL) returns int { * }
+sub crypto_sign_int(CArray[uint8], CArray[ulonglong], CArray[uint8], ulonglong, CArray[uint8]) is symbol('crypto_sign') is native(TWEETNACL) returns int { * }
+sub crypto_sign_open_int(CArray[uint8], CArray[ulonglong], CArray[uint8], ulonglong, CArray[uint8]) is symbol('crypto_sign_open') is native(TWEETNACL) returns int { * }
 
 
 class CryptoSign is export
 {
     has $.signature;
-    submethod BUILD(Blob :$buf!, CArray[int8] :$sk!)
+    submethod BUILD(Blob :$buf!, CArray[uint8] :$sk!)
     {
         my $mlen = $buf.elems;
-        $!signature = CArray[int8].new;
-        my $msg = CArray[int8].new;
-        my $tmp = CArray[int8].new;
+        $!signature = CArray[uint8].new;
+        my $msg = CArray[uint8].new;
+        my $tmp = CArray[uint8].new;
         $tmp[CRYPTO_SIGN_BYTES + $mlen - 1] = 0;
         my $i;
         loop ($i=0; $i < $buf.elems; ++$i)
@@ -179,11 +179,11 @@ class CryptoSign is export
 class CryptoSignOpen is export
 {
     has $.message;
-    submethod BUILD(CArray[int8] :$buf!, CArray[int8] :$pk!)
+    submethod BUILD(CArray[uint8] :$buf!, CArray[uint8] :$pk!)
     {
         my $smlen = $buf.elems;
         my $imessage := Buf.new;
-        my $tmp = CArray[int8].new;
+        my $tmp = CArray[uint8].new;
         $tmp[$smlen - 1] = 0;
         my $i;
         my $mlen = CArray[ulonglong].new;

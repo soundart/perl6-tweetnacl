@@ -7,15 +7,15 @@ use NativeCall;
 plan 7;
 
 my $keypair = KeyPair.new;
-isa-ok $keypair.secret, CArray[int8];
-isa-ok $keypair.public, CArray[int8];
+isa-ok $keypair.secret, CArray[uint8];
+isa-ok $keypair.public, CArray[uint8];
 
 is $keypair.secret.elems, CRYPTO_SIGN_SECRETKEYBYTES;
 is $keypair.public.elems, CRYPTO_SIGN_PUBLICKEYBYTES;
 
 my $msg = 'Hello World'.encode('UTF-8');
 my $cs = CryptoSign.new(buf => $msg, sk => $keypair.secret);
-isa-ok $cs.signature, CArray[int8];
+isa-ok $cs.signature, CArray[uint8];
 is $cs.signature.elems, 75;
 
 

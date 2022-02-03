@@ -8,8 +8,8 @@ plan 5;
 
 
 my $keypair = KeyPair.new;
-isa-ok $keypair.secret, CArray[int8];
-isa-ok $keypair.public, CArray[int8];
+isa-ok $keypair.secret, CArray[uint8];
+isa-ok $keypair.public, CArray[uint8];
 
 is $keypair.secret.elems, CRYPTO_BOX_SECRETKEYBYTES;
 is $keypair.public.elems, CRYPTO_BOX_PUBLICKEYBYTES;
