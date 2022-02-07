@@ -79,13 +79,12 @@ SYNOPSIS
 INSTALL
 =======
 
-    export PATH=~/.rakudobrew/bin:$PATH
-    export PATH=~/.rakudobrew/moar-2015.12/install/share/perl6/site/bin:$PATH
+    # on debian like systems:
 
-    perl6 Configure.pl6
-    make
-    make test
-    panda install git://github.com/soundart/perl6-tweetnacl.git
+    apt install rakudo moarvm-dev
+    git clone https://github.com/soundart/perl6-tweetnacl
+    cd perl6-tweetnacl
+    zef install .
 
 DESCRIPTION
 ===========
