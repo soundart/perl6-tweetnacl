@@ -117,7 +117,7 @@ DOC INIT {
 # of the ciphertext c are all 0.
 
 
-sub crypto_secretbox_int (CArray[int8], CArray[int8], ulonglong, CArray[int8], CArray[int8]) is symbol('crypto_secretbox') is native(TWEETNACL) is export returns int32 { * };
+sub crypto_secretbox_int (CArray[uint8], CArray[uint8], ulonglong, CArray[uint8], CArray[uint8]) is symbol('crypto_secretbox') is native(TWEETNACL) is export returns int32 { * };
 
 # C NaCl also provides a crypto_secretbox_open function callable as follows:
 
@@ -146,7 +146,7 @@ sub crypto_secretbox_int (CArray[int8], CArray[int8], ulonglong, CArray[int8], C
 # (in case of success) that the first crypto_secretbox_ZEROBYTES bytes
 # of the plaintext m are all 0.
 
-sub crypto_secretbox_open_int (CArray[int8], CArray[int8], ulonglong, CArray[int8], CArray[int8]) is symbol('crypto_secretbox_open') is native(TWEETNACL) is export returns int32 { * };
+sub crypto_secretbox_open_int (CArray[uint8], CArray[uint8], ulonglong, CArray[uint8], CArray[uint8]) is symbol('crypto_secretbox_open') is native(TWEETNACL) is export returns int32 { * };
 
 
 class Key is export
@@ -172,7 +172,7 @@ class CryptoSecretBox is export
     multi method encrypt(Blob $buf!, CArray $nonce!)
     {
         my ulonglong $mlen = CRYPTO_SECRETBOX_ZEROBYTES + $buf.elems;
-        my $data = CArray[int8].new;
+        my $data = CArray[uint8].new;
         $data[$mlen - 1] = 0;   #alloc
         my $msg  = prepend_zeros($buf, CRYPTO_SECRETBOX_ZEROBYTES);
         my $ret = crypto_secretbox_int($data, $msg, $mlen, $nonce, $!key);
@@ -204,7 +204,7 @@ class CryptoSecretBoxOpen is export
 
     multi method decrypt(CArray $c!, CArray $nonce!)
     {
-        my $msg  = CArray[int8].new;
+        my $msg  = CArray[uint8].new;
         my $clen = $c.elems;
         $msg[$clen - 1] = 0;    #alloc
         my $i;

@@ -136,7 +136,7 @@ DOC INIT {
 # https://nacl.cr.yp.to/box.html
 # int crypto_box_keypair(u8 *y,u8 *x);
 
-sub crypto_box_keypair_int(CArray[int8], CArray[int8]) is symbol('crypto_box_keypair') is native(TWEETNACL) returns int { * }
+sub crypto_box_keypair_int(CArray[uint8], CArray[uint8]) is symbol('crypto_box_keypair') is native(TWEETNACL) returns int { * }
 
 class KeyPair is export
 {
@@ -144,8 +144,8 @@ class KeyPair is export
     has $.public;
     submethod BUILD()
     {
-        $!secret := CArray[int8].new;
-        $!public := CArray[int8].new;
+        $!secret := CArray[uint8].new;
+        $!public := CArray[uint8].new;
         $!secret[CRYPTO_BOX_SECRETKEYBYTES - 1] = 0; # extend the array to 32 items
         $!public[CRYPTO_BOX_PUBLICKEYBYTES - 1] = 0; # extend the array to 32 items
         my $ret = crypto_box_keypair_int($!public,$!secret);
@@ -166,7 +166,7 @@ class KeyPair is export
 
 #      crypto_box_beforenm(k,pk,sk);#int crypto_box_beforenm(u8 *k,const u8 *y,const u8 *x);
 
-sub crypto_box_beforenm_int (CArray[int8], CArray[int8], CArray[int8]) is symbol('crypto_box_beforenm') is native(TWEETNACL) is export returns int32 { * };
+sub crypto_box_beforenm_int (CArray[uint8], CArray[uint8], CArray[uint8]) is symbol('crypto_box_beforenm') is native(TWEETNACL) is export returns int32 { * };
 
 # const unsigned char k[crypto_box_BEFORENMBYTES];
 # const unsigned char n[crypto_box_NONCEBYTES];
@@ -175,7 +175,7 @@ sub crypto_box_beforenm_int (CArray[int8], CArray[int8], CArray[int8]) is symbol
 
 # crypto_box_open_afternm(m,c,clen,n,k);
 
-sub crypto_box_afternm_int (CArray[int8], CArray[int8], ulonglong, CArray[int8], CArray[int8]) is symbol('crypto_box_afternm') is native(TWEETNACL) is export returns int32 { * };
+sub crypto_box_afternm_int (CArray[uint8], CArray[uint8], ulonglong, CArray[uint8], CArray[uint8]) is symbol('crypto_box_afternm') is native(TWEETNACL) is export returns int32 { * };
 
 
 class CryptoBox is export
@@ -183,7 +183,7 @@ class CryptoBox is export
     has $!key;
     submethod BUILD(CArray :$pk!, CArray :$sk!)
     {
-        $!key := CArray[int8].new;
+        $!key := CArray[uint8].new;
         $!key[CRYPTO_BOX_BEFORENMBYTES - 1] = 0; # extend the array to 32 items
         my $ret = crypto_box_beforenm_int($!key, $pk, $sk);
         if ($ret != 0) {
@@ -194,7 +194,7 @@ class CryptoBox is export
     multi method encrypt(Blob $buf!, CArray $nonce!)
     {
         my ulonglong $mlen = CRYPTO_BOX_ZEROBYTES + $buf.elems;
-        my $data = CArray[int8].new;
+        my $data = CArray[uint8].new;
         $data[$mlen - 1] = 0;   #alloc
         my $msg  = prepend_zeros($buf, CRYPTO_BOX_ZEROBYTES);
         my $ret = crypto_box_afternm_int($data, $msg, $mlen, $nonce, $!key);
@@ -226,14 +226,14 @@ class CryptoBox is export
 
 #    crypto_box_open_afternm(m,c,clen,n,k)
 
-sub crypto_box_open_afternm_int(CArray[int8], CArray[int8], ulonglong, CArray[int8], CArray[int8]) is symbol('crypto_box_open_afternm') is native(TWEETNACL) is export returns int32 { * }
+sub crypto_box_open_afternm_int(CArray[uint8], CArray[uint8], ulonglong, CArray[uint8], CArray[uint8]) is symbol('crypto_box_open_afternm') is native(TWEETNACL) is export returns int32 { * }
 
 class CryptoBoxOpen is export
 {
     has $!key;
     submethod BUILD(CArray :$pk!, CArray :$sk!)
     {
-        $!key := CArray[int8].new;
+        $!key := CArray[uint8].new;
         $!key[CRYPTO_BOX_BEFORENMBYTES - 1] = 0; # extend the array to 32 items
         my $ret = crypto_box_beforenm_int($!key, $pk, $sk);
         if ($ret != 0) {
@@ -242,7 +242,7 @@ class CryptoBoxOpen is export
     }
     multi method decrypt(CArray $c!, CArray $nonce!)
     {
-        my $msg  = CArray[int8].new;
+        my $msg  = CArray[uint8].new;
         my $clen = $c.elems;
         $msg[$clen - 1] = 0;    #alloc
         my $i;
@@ -280,12 +280,12 @@ class CryptoBoxOpen is export
 #
 #     crypto_box(c,m,mlen,n,pk,sk);
 
-sub crypto_box_int (CArray[int8], CArray[int8], ulonglong, CArray[int8], CArray[int8], CArray[int8]) is symbol('crypto_box') is native(TWEETNACL) is export returns int32 { * };
+sub crypto_box_int (CArray[uint8], CArray[uint8], ulonglong, CArray[uint8], CArray[uint8], CArray[uint8]) is symbol('crypto_box') is native(TWEETNACL) is export returns int32 { * };
 
 sub crypto_box (Blob $buf!, CArray $nonce!, CArray $pk!, CArray $sk!) is export
 {
     my ulonglong $mlen = CRYPTO_BOX_ZEROBYTES + $buf.elems;
-    my $data = CArray[int8].new;
+    my $data = CArray[uint8].new;
     $data[$mlen - 1] = 0;       #alloc
     my $msg  = prepend_zeros($buf, CRYPTO_BOX_ZEROBYTES);
     my $ret = crypto_box_int($data, $msg, $mlen, $nonce, $pk, $sk);
@@ -302,12 +302,12 @@ sub crypto_box (Blob $buf!, CArray $nonce!, CArray $pk!, CArray $sk!) is export
 #     unsigned char m[...];
 #     crypto_box_open(m,c,clen,n,pk,sk);
 
-sub crypto_box_open_int(CArray[int8], CArray[int8], ulonglong, CArray[int8], CArray[int8], CArray[int8]) is symbol('crypto_box_open') is native(TWEETNACL) is export returns int32 { * }
+sub crypto_box_open_int(CArray[uint8], CArray[uint8], ulonglong, CArray[uint8], CArray[uint8], CArray[uint8]) is symbol('crypto_box_open') is native(TWEETNACL) is export returns int32 { * }
 
 
 sub crypto_box_open(CArray $c!, CArray $nonce!, CArray $pk!, CArray $sk!) is export
 {
-    my $msg  = CArray[int8].new;
+    my $msg  = CArray[uint8].new;
     my $clen = $c.elems;
     $msg[$clen - 1] = 0;        #alloc
     my $i;

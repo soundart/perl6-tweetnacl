@@ -23,4 +23,4 @@ say $b;
 is $same , Bool::False;
 
 my $n = nonce();
-isa-ok CArray[int8], $n;
+isa-ok CArray[uint8], $n;

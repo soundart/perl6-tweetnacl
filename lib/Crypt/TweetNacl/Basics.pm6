@@ -42,11 +42,11 @@ class CryptoHash is export {
 # void randombytes(unsigned char *x,unsigned long long xlen)
 
 # todo check signedness of xlen
-sub randombytes_int(CArray[int8], ulonglong) is symbol('randombytes') is native(TWEETNACL) is export { * }
+sub randombytes_int(CArray[uint8], ulonglong) is symbol('randombytes') is native(TWEETNACL) is export { * }
 
 sub randombytes(int $xlen!) is export
 {
-    my $data = CArray[int8].new;
+    my $data = CArray[uint8].new;
     $data[$xlen - 1] = 0;
     randombytes_int($data, $xlen);
     return $data;
@@ -60,7 +60,7 @@ sub nonce() is export
 sub prepend_zeros($buf!, Int $num_zeros!) is export
 {
     my $mlen = $num_zeros + $buf.elems;
-    my $msg  = CArray[int8].new;
+    my $msg  = CArray[uint8].new;
     $msg[$mlen - 1] = 0;        #alloc
     my Int $i;
     loop ($i=0; $i < $num_zeros ; $i++)
@@ -82,7 +82,7 @@ class Ciphertext is export
 
     submethod BUILD(CArray :$zdata!, CArray :$nonce!)
     {
-        $!data = remove_leading_elems(CArray[int8], $zdata, CRYPTO_BOX_BOXZEROBYTES);
+        $!data = remove_leading_elems(CArray[uint8], $zdata, CRYPTO_BOX_BOXZEROBYTES);
         $!dlen = $!data.elems;
         $!nonce = $nonce;
     }
